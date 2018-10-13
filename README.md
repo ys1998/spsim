@@ -3,6 +3,8 @@
 *   All changes will be made only to the `test` branch
 *   Suggestions, bugs, checklists etc. will be all maintained via the **Issues** tab. Please keep on checking it for any task that might have been assigned to you.
 *   After completing a task, submit a pull request to `master`. Code will be reviewed by other team members; then changes will be merged and the issue will be closed.
+*   For compiling the program, just run `make`. If you have altered the code structure (added a new folder etc.) update the **Makefile** at the appropriate place.
+*   Before submitting a pull request, remember to clean the archive by executing `make clean`.
 ***
 
 # SPSIM - a Superscalar Processor SIMulator
