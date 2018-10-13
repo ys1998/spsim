@@ -14,11 +14,11 @@ This repository contatins the code of our course project for Computer Architectu
 ### Name
 Comarchs
 ### Members
-*   [160050002] Yash Shah (@ys1998)
-*   [160050025] Naman Jain (@Naman-ntc)
-*   [160050032] Utkarsh Gupta (@Ug48)
-*   [160050042] Rupesh (@dungeon-masterRupesh)
-*   [160050059] Sharvik Mital (@sharvik-mital)
+*   [160050002] Yash Shah ([**@ys1998**](https://github.com/ys1998))
+*   [160050025] Naman Jain ([**@Naman-ntc**](https://github.com/Naman-ntc))
+*   [160050032] Utkarsh Gupta ([**@Ug48**](https://github.com/Ug48))
+*   [160050042] Rupesh ([**@dungeon-masterRupesh**](https://github.com/dungeon-masterRupesh))
+*   [160050059] Sharvik Mital ([**@sharvik-mital**](https://github.com/sharvik-mital))
 
 ## Reference papers
 *   *"The Microarchitecture of Superscalar Processors"*, James E. Smith, Gurindar S. Sohi
