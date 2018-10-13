@@ -1,3 +1,10 @@
+***
+## Instructions
+*   All changes will be made only to the `test` branch
+*   Suggestions, bugs, checklists etc. will be all maintained via the **Issues** tab. Please keep on checking it for any task that might have been assigned to you.
+*   After completing a task, submit a pull request to `master`. Code will be reviewed by other team members; then changes will be merged and the issue will be closed.
+***
+
 # SPSIM - a Superscalar Processor SIMulator
 This repository contatins the code of our course project for Computer Architecture (CS305-CS341) at IIT Bombay. We have developed a simulator for a superscalar processor with dynamic (out-of-order) scheduling and branch prediction in C++.
 
@@ -24,8 +31,3 @@ Comarchs
 ```
 details of other major files, when added, shall go here
 ```
-
-## Instructions
-*   All changes will be made only to the `test` branch
-*   Suggestions, bugs, checklists etc. will be all maintained via the **Issues** tab. Please keep on checking it for any task that might have been assigned to you.
-*   After completing a task, submit a pull request to `master`. Code will be reviewed by other team members; then changes will be merged and the issue will be closed.
