@@ -9,6 +9,8 @@
 #define REP(i,n) FOR(i, 0, n)
 #define MAXACTIVELIST 32
 
+int BranchStateArray[32] = {0}; 
+// INITIAL STATE OF ALL Predictions is Zero
 
 
 template <size_t N1,size_t N2,size_t N>
@@ -62,6 +64,35 @@ void DecodeUnit::DecodeUnit(){
 bitset<10> getfunc(bitset<12> opcodes){
 	return ;
 }
+
+// **********  BRANCH PREDICTION UNIT ***********//
+
+// Should I use Locks to the branch prediction unit ???
+
+int BranchPredictor(int ProgramCounter){
+	int IndexToCheck = ProgramCounter%32;
+	int returnValue = BranchStateArray[IndexToCheck] / 2;
+// Return 0 for state 0 and state 1
+// Return 1 for state 3 and state 2
+	return returnValue;
+}
+
+void BranchPredictorUpdate(int ProgramCounter, int BranchOutput){
+	int IndexToCheck = ProgramCounter%32;
+	int predictedValue = BranchStateArray[IndexToCheck] / 2;
+	if (predictedValue != BranchOutput)
+	{
+		BranchStateArray[IndexToCheck] = (BranchStateArray[IndexToCheck] + 1) % 4;
+	}
+	else{
+		BranchStateArray[IndexToCheck] -= BranchStateArray[IndexToCheck] % 2;
+	}
+	return;
+}
+
+
+// *********** Branch preciction UNIT ************//
+
 
 void DecodeUnit::tick(vector<bitset<32> > instructions) {
     // code here
