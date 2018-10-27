@@ -8,6 +8,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #define pb push_back
 #define pf push_front
@@ -79,6 +80,7 @@ struct instruction{    // it would have to modified for store loads accordingly
 		IF = DE = RF = EXEC = WB = -1;
 		shamt = 0;
 		istringstream iss(file_input);
+		is_branch = false; // CHANGE LATER
 		int cnt = 0;
 	    while(iss) {
 			if(cnt == 0) {
@@ -301,6 +303,7 @@ public:
     void tock(){ // if apossible pull atmost 2 instriuctions
     	int cnt = 0; 
 		while(!instructionBuffer.empty() && cnt <2 ){
+			cout << "Calling decodeInstruction\n";
 			decodeInstruction(instructionBuffer.front());
 			instructionBuffer.pop();
 			cnt++;
@@ -318,6 +321,7 @@ public:
     		// stall for one cycle
     		// load from that PC 
     		// maintain bitmasks fields here and there....
+    		cout << "Branch\n";
     	}
     	else { // fopr now else emans its an ALU operation
     		if(RegisterMapping[instruct.rs] == -1){
@@ -597,9 +601,9 @@ int main(int argc, char * argv[]){
 	FetchUnit fetchunit;
 	DecodeUnit decodeunit;
 	// the while loop of cycle
-	int time = 20; // assume it takes 10 cycles need to figure out when to stop the pipeline
-	while(time--){
-		cout<<time<<endl;
+	int t = 20; // assume it takes 10 cycles need to figure out when to stop the pipeline
+	while(t--){
+		cout<<t<<endl;
 		global_timer++;
 
 		fetchunit.tick();
