@@ -107,7 +107,7 @@ struct instruction{    // it would have to modified for store loads accordingly
 vector<instruction> outputorder;
 instruction I_cache[1000000]; // atmost 1 million instructions
 queue<instruction> decodeReg; // communicating data structure (registers in hardware) for instruction fetch and decode unit
-queue<instruction> decodeRegNext;
+//queue<instruction> decodeRegNext;
 ////////////////////////////////////////////////////             STAGE 1.        . /////////////////////////////////////////////////////////////////
 
 class FetchUnit{
@@ -115,18 +115,23 @@ public:
 	int PC;
 	FetchUnit():PC(0){}
 	void tick(){
+		// do nothing;
+	}
+	void tock(){
 		// always keep fetching buffering responsibility is on decoder 
 		// stop condition has to be added bracnhes complicate when to stop maybe stop signal should come from 7th stage?
 		// PC is being incremented 1 by 1 here however when brach occurs it would have to modified some signaling mehcanushm would be needed to change the PC
 		if(I_cache[PC].PC!=-1) {
-			decodeReg.push(I_cache[PC++]);
-			cout<<"Pushing instruction in decodeRegNext\n";
-			decodeReg.front().IF = global_timer;
+			instruction x = I_cache[PC++];
+			x.IF = global_timer;
+			decodeReg.push(x);
+			cout<<"Pushing instruction in decodeReg\n";
 		}
 		if(I_cache[PC].PC!=-1) {
-			decodeReg.push(I_cache[PC++]);
+			instruction x = I_cache[PC++];
+			x.IF = global_timer;
+			decodeReg.push(x);
 			cout<<"Pushing instruction in decodeReg\n";
-			decodeReg.front().IF = global_timer;
 		}
 	}
 };
@@ -174,6 +179,12 @@ struct ActiveList{
 		for(auto & p : _activelist){
 			if(p.first.ID == _ins.ID) {
 				p.second = 1;
+				// update he clock times
+				p.fi.IF = _ins.IF;
+				p.fi.DE = _ins.DE;
+				p.fi.RF = _ins.RF;
+				p.fi.EXEC = _ins.EXEC;
+				p.fi.WB = _ins.WB;
 				cout<<"Calling graduationceremony\n";
 				graduationceremony();
 				return;
@@ -190,7 +201,7 @@ struct ActiveList{
 	}
 
 	void graduate(instruction _ins){ // is this all there is to graduation?
-		freelist.add(_ins.previous_mapping);
+		if(_ins.previous_mapping!=-1) freelist.add(_ins.previous_mapping);
 		cout<<"Adding to output order\n";
 		outputorder.push_back(_ins);
 	}
@@ -206,7 +217,7 @@ struct IntegerQueue{
 		}
 	}
 	void add(instruction I){
-		for(int i=0;i<64;i++){
+		for(int i=0;i<32;i++){
 			if(array_of_instructions[i].PC == -1) {
 				array_of_instructions[i] = I;
 				return;
@@ -215,7 +226,7 @@ struct IntegerQueue{
 		cout<<"IntegerQueue is full which shouldnt happen check!!\n";
 	}
 	instruction issue1(){ // rteturn instruction with PC = -1 if cant issue else return instruction on success
-		for(int i=0;i<64;i++){
+		for(int i=0;i<32;i++){
 			instruction x = array_of_instructions[i];
 			if(x.PC != -1 && (x.funct == functs["add"] || x.funct == functs["sub"])) {
 				if(!BusyBitTable[x.mappedrs] && !BusyBitTable[x.mappedrt]) { // Busy bit changed in 7th stage-first half
@@ -229,7 +240,7 @@ struct IntegerQueue{
 		return fail;
 	}
 	instruction issue2(){ // rteturn instruction with PC = -1 if cant issue else return instruction on success
-		for(int i=0;i<64;i++){
+		for(int i=0;i<32;i++){
 			instruction x = array_of_instructions[i];
 			if(x.PC != -1 && (x.funct == functs["mult"] || x.funct == functs["div"])) {
 				if(!BusyBitTable[x.mappedrs] && !BusyBitTable[x.mappedrt]) { // Busy bit changed in 7th stage-first half
@@ -248,6 +259,7 @@ struct IntegerRegisterFile{
 	int value[64]; // value sof the 32 registers
 	long hi; // 2 special registers
 	long lo;
+	// write read for hi/lo 
 	void write(int reg,int val){
 		value[reg] = val; 
 	}
@@ -261,6 +273,96 @@ struct IntegerRegisterFile{
 		hi = lo = 0;
 	}
 } integerRegisterFile;
+
+
+
+////////////////////////////////////////////////////             STAGE 2        . /////////////////////////////////////////////////////////////////
+
+class DecodeUnit {
+public:
+    // data members here
+	queue<instruction> instructionBuffer; // Max Size  Ans: dont care
+	bool decode_signal;  // if decode 0 then dont decode push into instructionBuffer else decode 
+	//bool decode_signal2;   // decodesignal2
+	   // Max Size 32
+	DecodeUnit(){ // default constructor
+		decode_signal = 1; 
+		for(int i=0;i<32;i++) 
+			RegisterMapping[i]=-1; // registers which havent been mapped till now are indicated through value of -1 
+	}
+	void tick(){ // fetch th einstrcutions from the previous cycle of IF
+    	// Push all the instructions from decodeReg to instruction buffer
+		while(!decodeReg.empty()) {
+			instructionBuffer.push(decodeReg.front());
+			decodeReg.pop();
+		}
+    }
+
+    void tock(){ // if apossible pull atmost 2 instriuctions
+    	int cnt = 0; 
+		while(!instructionBuffer.empty() && cnt <2 ){
+			decodeInstruction(instructionBuffer.front());
+			instructionBuffer.pop();
+			cnt++;
+		}
+		cnt = 0;
+    }
+
+    void decodeInstruction(instruction instruct){
+    	// ACtive list manipulation yet to be added
+    	// there will be more if-elses as we add more instructions
+    	if(instruct.is_branch){ // if its a branch different logic
+    		// calculate branch address
+    		// refer to branch predictor
+    		// make the necessary state and push it on branch stack
+    		// stall for one cycle
+    		// load from that PC 
+    		// maintain bitmasks fields here and there....
+    	}
+    	else { // fopr now else emans its an ALU operation
+    		if(RegisterMapping[instruct.rs] == -1){
+    			RegisterMapping[instruct.rs] = freelist.find();
+    			// freelist.find() maynot return a free register
+    			instruct.mappedrs = RegisterMapping[instruct.rs];
+    			freelist.remove(instruct.mappedrs);
+    			cout<<" Logical reg "<<instruct.rs<<" Mapped to physical reg "<<instruct.mappedrs<<endl;
+    		}
+    		else {
+    			instruct.mappedrs =  RegisterMapping[instruct.rs];
+    			cout<<" Logical reg "<<instruct.rs<<" Mapped to physical reg "<<instruct.mappedrs<<endl;
+    		}
+    		if(RegisterMapping[instruct.rt] == -1){
+    			RegisterMapping[instruct.rt] = freelist.find();
+    			instruct.mappedrt = RegisterMapping[instruct.rt];
+    			freelist.remove(instruct.mappedrt);
+    			cout<<" Logical reg "<<instruct.rt<<" Mapped to physical reg "<<instruct.mappedrt<<endl;
+    		}
+    		else {
+    			instruct.mappedrt =  RegisterMapping[instruct.rt];
+    			cout<<" Logical reg "<<instruct.rt<<" Mapped to physical reg "<<instruct.mappedrt<<endl;
+    		}
+    		//  rd has to be mapped to new register
+    		RegisterMapping[instruct.rd] = freelist.find();
+    		instruct.mappedrd = RegisterMapping[instruct.rd];
+    		freelist.remove(instruct.mappedrd);
+    		cout<<" Logical reg "<<instruct.rd<<" Mapped to physical reg "<<instruct.mappedrd<<endl;
+    		BusyBitTable[instruct.mappedrd] = 1; // this destination register is busy now
+
+    		// after decoding i need to add it in integer queue
+    		cout<<"Adding instruction to integer queue and active list IF "<<instruct.IF<<endl;
+    		instruct.DE = global_timer;
+    		instruct.ID = global_intr_cntr++;
+    		integerQueue.add(instruct);
+    		activelist.push(instruct);	
+    	}
+    }
+};
+
+
+
+
+
+////////////////////////////////////////////////////             STAGE 3        . /////////////////////////////////////////////////////////////////
 
 struct Stage3_4_1{ // intermediate state needed for going from stage 3 to dtage 4 usually done using registers in hardware
 	instruction instruct; // this for add/sub
@@ -285,6 +387,7 @@ struct Stage3_4_2{ // intermediate state needed for going from stage 3 to dtage 
 	instruction instruct; // this struct for div/mult
 	int in1,in2;
 	bool is_valid;	// dont use the same struct data twice!
+	// wrtie getter setter for instruct
 	void push(instruction _instruct,int _in1,int _in2){
 		instruct = _instruct;
 		in1 = _in1;
@@ -299,6 +402,51 @@ struct Stage3_4_2{ // intermediate state needed for going from stage 3 to dtage 
 	}
 } stage3_4_2;
 
+
+class Stage3{
+public:
+	instruction I1,I2;
+	void tick(){
+		I1 = integerQueue.issue1();
+		I2 = integerQueue.issue2();
+	}
+	void tock(){
+		if(I1.PC!=-1){
+			cout<<"Pushing instruction 1 to ALU"<<endl;
+			I1.RF = global_timer;
+			stage3_4_1.push(I1,integerRegisterFile.read(I1.mappedrs),integerRegisterFile.read(I1.mappedrt));
+		}
+		if(I2.PC!=-1){
+			cout<<"Pushing instruction 2 to ALU "<<I2.PC<<" "<<I2.opcode<<" "<<I2.funct<<" "<<I2.rd<<endl;
+			I2.RF = global_timer;
+			stage3_4_2.push(I2,integerRegisterFile.read(I2.mappedrs),integerRegisterFile.read(I2.mappedrt));
+		}
+	}
+} stage3;	
+
+
+
+struct Stage4_5_1{
+	instruction instruct;
+	int res;
+	bool is_valid;
+	Stage4_5_1(){
+		is_valid = 0;
+	}
+} stage4_5_1;
+
+
+
+struct Stage4_5_2{
+	instruction instruct;
+	pair<int,int> res;
+	bool is_valid;
+	Stage4_5_2(){
+		is_valid = 0;
+	}
+} stage4_5_2;
+
+////////////////////////////////////////////////////             STAGE 4        . /////////////////////////////////////////////////////////////////
 
 struct _ALU1{ // Only for addition and subtraction
 	int operate(Stage3_4_1 arg){
@@ -340,65 +488,218 @@ struct _ALU2{ // ALU 2 is for division and multiplicatio only
 	_ALU2(){}
 } ALU2;
 
-////////////////////////////////////////////////////             STAGE 2        . /////////////////////////////////////////////////////////////////
 
-class DecodeUnit {
+class Stage4{
+	Stage3_4_1 _stage3_4_1;
+	Stage3_4_2 _stage3_4_2;
+	int temp1;
+	pair<int,int> temp2;
 public:
-    // data members here
-	queue<instruction> instructionBuffer; // Max Size  Ans: dont care
-	bool decode_signal;  // if decode 0 then dont decode push into instructionbuffer else decode 
-	//bool decode_signal2;   // decodesignal2
-	   // Max Size 32
-	DecodeUnit(){ // default constructor
-		decode_signal = 1; 
-		for(int i=0;i<32;i++) 
-			RegisterMapping[i]=-1; // registers which havent been mapped till now are indicated through value of -1 
-	}
 	void tick(){
-    	// first check if there are pending instructions in the buffer if so first use them and if not then we deocde the instructions in decodeReg 
-    	// else we push those instructions into instruction buffer
+		_stage3_4_1 = stage3_4_1;
+		_stage3_4_2 = stage3_4_2;
+		
+		if(stage3_4_1.is_valid){
+			temp1 = ALU1.operate(stage3_4_1);
+			cout<<"ALU1 operation done reseting busybit table physical register = "<<stage3_4_1.instruct.mappedrd<<"= 0 and setting stage for stage5"<<endl;
+			BusyBitTable[stage3_4_1.instruct.mappedrd] = 0; // This LINE IS SUPER CRITICAL I GUESS...
+		}
+		stage3_4_1.pop();
+		if(stage3_4_2.is_valid){
+			temp2 = ALU2.operate(stage3_4_2);
+			cout<<"ALU2 operation done reseting busybit table physical register = "<<stage3_4_2.instruct.mappedrd<<"= 0 and setting stage for stage5"<<endl;
+			BusyBitTable[stage3_4_2.instruct.mappedrd] = 0;
+		}
+		stage3_4_2.pop();
+	}	
+	void tock(){
+		if(_stage3_4_1.is_valid){
+			stage4_5_1.res = temp1;
+			stage4_5_1.is_valid = 1;
+			stage4_5_1.instruct = _stage3_4_1.instruct;
+			cout<<"Does RF assignment still holds? "<<stage4_5_1.instruct.RF<<" "<<stage4_5_1.instruct.IF<<endl; 
+			stage4_5_1.instruct.EXEC = global_timer;
+			
+		}
+		if(_stage3_4_2.is_valid){
+			stage4_5_2.res = temp2;
+			stage4_5_2.is_valid = 1;
+			stage4_5_2.instruct = _stage3_4_2.instruct;
+			stage4_5_2.instruct.EXEC = global_timer;
+		}
+	}
+} stage4;
 
-		if(decodeReg.empty() && instructionBuffer.empty()) {
-			decode_signal = 0;
+////////////////////////////////////////////////////             STAGE 5         . /////////////////////////////////////////////////////////////////
+
+
+class Stage5{
+	Stage4_5_1 _stage4_5_1;
+	Stage4_5_2 _stage4_5_2;
+public:
+	void tick(){
+		_stage4_5_1 = stage4_5_1;
+		stage4_5_1.is_valid = 0;
+		_stage4_5_2 = stage4_5_2;
+		stage4_5_2.is_valid = 0;
+	}
+
+	void tock(){
+		if(_stage4_5_1.is_valid){
+			_stage4_5_1.instruct.WB = global_timer;
+			activelist.set_done_bit(_stage4_5_1.instruct);
+			integerRegisterFile.write(_stage4_5_1.instruct.mappedrd,stage4_5_1.res);
 		}
-		if(decode_signal){
-			if(instructionBuffer.size() >= 2){
-				for(int i=0;i<2;i++){
-					decodeInstruction(instructionBuffer.front());
-    				instructionBuffer.pop();
-				}
-			}
-			else if(instructionBuffer.size() == 1){
-				decodeInstruction(instructionBuffer.front());
-    			instructionBuffer.pop();
-    			if(decodeReg.size()>=1){
-    				instruction instr1 = decodeReg.front();
-	    	 		decodeReg.pop();
-	   				decodeInstruction(instr1);
-    			}
-    			else {
-    				decode_signal = 0;
-    			}
-			}
-			else {
-				if(decodeReg.size() >= 2){
-					for(int i=0;i<2;i++){
-						instruction instr1 = decodeReg.front();
-	    	 			decodeReg.pop();
-	   					decodeInstruction(instr1);
-					}
-				}
-				else if(decodeReg.size() == 1){
-					instruction instr1 = decodeReg.front();
-	    	 		decodeReg.pop();
-	   				decodeInstruction(instr1);
-	   				decode_signal = 0;
-				}
-				else {
-					decode_signal = 0;
-				}
-			}
+		if(_stage4_5_2.is_valid){
+			_stage4_5_2.instruct.WB = global_timer;
+			activelist.set_done_bit(_stage4_5_2.instruct);
+			integerRegisterFile.hi = _stage4_5_2.res.first;
+			integerRegisterFile.lo = _stage4_5_2.res.second;
 		}
+	}
+} stage5;
+
+bool cmp(instruction I1,instruction I2){ 
+	return I1.PC < I2.PC ;//|| (I1.IF < I2.IF && I1.RF < I2.RF); 
+}
+
+
+int main(int argc, char * argv[]){
+	if(argc <= 1) {
+		cout<<"program.txt needed as second arguement"<<endl;
+		return 0;
+	}
+	for(int i=0;i<1000000;i++){
+		I_cache[i].PC = -1;
+	}
+	// input and fill i cache that will
+	// input the file
+	instantiateISA(); // fills the opcodes and funct maps; 
+	ifstream programFile(argv[1]);
+	if(!programFile) {
+    	cout << "Cannot open input file. :(\n";
+   	 	return 1;
+ 	}
+	int PC=0;
+	string input=" ";
+	while(getline(programFile,input)){ // fill I_cache
+		if(PC > 1000000) {
+			cout<<"spspim  cant handle such a big program : keep less than one million instructions"<<endl;
+			return 0;
+		}
+		cout<<input<<endl;
+		instruction instruction_from_file(PC,input);
+		I_cache[PC] = instruction_from_file;   // this instantiates I_cache instruction through input string and PC
+		PC++;
+	}
+
+	// initiallize the required units
+	FetchUnit fetchunit;
+	DecodeUnit decodeunit;
+	// the while loop of cycle
+	int time = 20; // assume it takes 10 cycles need to figure out when to stop the pipeline
+	while(time--){
+		cout<<time<<endl;
+		global_timer++;
+
+		fetchunit.tick();
+		decodeunit.tick();
+		stage3.tick(); // Stage3.tock() issues instructions whose operands are available after stage 4
+		stage4.tick(); // Stage4.tick() does everything fir stage 3 and stage 4
+		stage5.tick(); // Stage5.tick() does everything
+		fetchunit.tock();
+		decodeunit.tock();
+		stage3.tock(); // fetches operands from registers and goes into required ALU
+		stage4.tock();
+		stage5.tock();
+		//completesignal = 1;
+	}
+	programFile.close();
+	cout<<"Printing logic "<<outputorder.size()<<endl;
+	// output logic now
+	sort(outputorder.begin(),outputorder.end(),cmp); // sort in increasing order of time of IF
+	cout<<"Printing logic "<<outputorder.size()<<endl;
+	for(auto I : outputorder){
+		cout<<"Printing logic "<<outputorder.size()<<" "<<I.IF<<" "<<I.DE<<" "<<I.RF<<" "<<I.EXEC<<" "<<I.WB<<endl;
+		int i=1;
+		while(i!=I.IF) {
+			cout<<"|    ";
+			i++;
+		}
+		cout<<"| IF ";
+		i++;
+		while(i!=I.DE) {
+			cout<<"|    ";
+			i++;
+		}
+		cout<<"| DE ";
+		i++;
+		while(i!=I.RF) {
+			cout<<"|    ";
+			i++;
+		}
+		cout<<"| RF ";
+		i++;
+		while(i!=I.EXEC) {
+			cout<<"|    ";
+			i++;
+		}
+		cout<<"|EXEC";
+		i++;
+		while(i!=I.WB) {
+			cout<<"|    ";
+			i++;
+		}
+		cout<<"| WB ";
+		cout<<endl;
+	}
+
+
+}
+
+
+		// if(decodeReg.empty() && instructionBuffer.empty()) {
+		// 	decode_signal = 0;
+		// }
+		// if(decode_signal){
+		// 	if(instructionBuffer.size() >= 2){
+		// 		for(int i=0;i<2;i++){
+		// 			decodeInstruction(instructionBuffer.front());
+  //   				instructionBuffer.pop();
+		// 		}
+		// 		// feed DecodeReg instrcuction to buffer 
+		// 	}
+		// 	else if(instructionBuffer.size() == 1){
+		// 		decodeInstruction(instructionBuffer.front());
+  //   			instructionBuffer.pop();
+  //   			if(decodeReg.size()>=1){
+  //   				instruction instr1 = decodeReg.front();
+	 //    	 		decodeReg.pop();
+	 //   				decodeInstruction(instr1);
+  //   			}
+  //   			else {
+  //   				decode_signal = 0;
+  //   			}
+		// 	}
+		// 	else {
+		// 		if(decodeReg.size() >= 2){
+		// 			for(int i=0;i<2;i++){
+		// 				instruction instr1 = decodeReg.front();
+	 //    	 			decodeReg.pop();
+	 //   					decodeInstruction(instr1);
+		// 			}
+		// 		}
+		// 		else if(decodeReg.size() == 1){
+		// 			instruction instr1 = decodeReg.front();
+	 //    	 		decodeReg.pop();
+	 //   				decodeInstruction(instr1);
+	 //   				decode_signal = 0;
+		// 		}
+		// 		else {
+		// 			decode_signal = 0;
+		// 		}
+		// 	}
+		// }
 
     	// int cnt = 0;
     	// cout<<"##############################Size of decodeReg = "<<decodeReg.size()<<endl;
@@ -460,239 +761,3 @@ public:
 	    // 	decodeReg.pop();
 	    // 	instructionBuffer.push(instr2);
     	// }
-    }
-
-    void decodeInstruction(instruction instruct){
-    	// ACtive list manipulation yet to be added
-    	// there will be more if-elses as we add more instructions
-    	if(instruct.is_branch){ // if its a branch different logic
-    		// calculate branch address
-    		// refer to branch predictor
-    		// make the necessary state and push it on branch stack
-    		// stall for one cycle
-    		// load from that PC 
-    		// maintain bitmasks fields here and there....
-    	}
-    	else { // fopr now else emans its an ALU operation
-    		if(RegisterMapping[instruct.rs] == -1){
-    			RegisterMapping[instruct.rs] = freelist.find();
-    			instruct.mappedrs = RegisterMapping[instruct.rs];
-    			freelist.remove(instruct.mappedrs);
-    			cout<<" Logical reg "<<instruct.rs<<" Mapped to physical reg "<<instruct.mappedrs<<endl;
-    		}
-    		else {
-    			instruct.mappedrs =  RegisterMapping[instruct.rs];
-    			cout<<" Logical reg "<<instruct.rs<<" Mapped to physical reg "<<instruct.mappedrs<<endl;
-    		}
-    		if(RegisterMapping[instruct.rt] == -1){
-    			RegisterMapping[instruct.rt] = freelist.find();
-    			instruct.mappedrt = RegisterMapping[instruct.rt];
-    			freelist.remove(instruct.mappedrt);
-    			cout<<" Logical reg "<<instruct.rt<<" Mapped to physical reg "<<instruct.mappedrt<<endl;
-    		}
-    		else {
-    			instruct.mappedrt =  RegisterMapping[instruct.rt];
-    			cout<<" Logical reg "<<instruct.rt<<" Mapped to physical reg "<<instruct.mappedrt<<endl;
-    		}
-    		//  rd has to be mapped to new register
-    		RegisterMapping[instruct.rd] = freelist.find();
-    		instruct.mappedrd = RegisterMapping[instruct.rd];
-    		freelist.remove(instruct.mappedrd);
-    		cout<<" Logical reg "<<instruct.rd<<" Mapped to physical reg "<<instruct.mappedrd<<endl;
-    		BusyBitTable[instruct.mappedrd] = 1; // this destination register is busy now
-
-    		// after decoding i need to add it in integer queue
-    		cout<<"Adding instruction to integer queue and active list"<<endl;
-    		instruct.DE = global_timer;
-    		instruct.ID = global_intr_cntr++;
-    		integerQueue.add(instruct);
-    		activelist.push(instruct);	
-    	}
-    }
-};
-
-
-
-
-
-////////////////////////////////////////////////////             STAGE 3        . /////////////////////////////////////////////////////////////////
-
-
-
-class Stage3{
-public:
-	instruction I1,I2;
-	void tick(){
-		I1 = integerQueue.issue1();
-		I2 = integerQueue.issue2();
-	}
-	void tock(){
-		if(I1.PC!=-1){
-			cout<<"Pushing instruction 1 to ALU"<<endl;
-			I1.RF = global_timer;
-			stage3_4_1.push(I1,integerRegisterFile.read(I1.mappedrs),integerRegisterFile.read(I1.mappedrt));
-		}
-		if(I2.PC!=-1){
-			cout<<"Pushing instruction 2 to ALU "<<I2.PC<<" "<<I2.opcode<<" "<<I2.funct<<" "<<I2.rd<<endl;
-			I2.RF = global_timer;
-			stage3_4_2.push(I2,integerRegisterFile.read(I2.mappedrs),integerRegisterFile.read(I2.mappedrt));
-		}
-	}
-} stage3;	
-
-
-
-struct Stage4_5_1{
-	instruction instruct;
-	int res;
-	bool is_valid;
-} stage4_5_1;
-
-
-
-struct Stage4_5_2{
-	instruction instruct;
-	pair<int,int> res;
-	bool is_valid;
-} stage4_5_2;
-
-////////////////////////////////////////////////////             STAGE 4        . /////////////////////////////////////////////////////////////////
-
-
-class Stage4{
-public:
-	void tick(){
-		if(stage3_4_1.is_valid){
-			stage4_5_1.res = ALU1.operate(stage3_4_1);
-			cout<<"ALU1 operation done reseting busybit table physical register = "<<stage3_4_1.instruct.mappedrd<<"= 0 and setting stage for stage5"<<endl;
-			BusyBitTable[stage3_4_1.instruct.mappedrd] = 0; // This LINE IS SUPER CRITICAL I GUESS...
-			stage4_5_1.is_valid = 1;
-			stage4_5_1.instruct = stage3_4_1.instruct;
-			cout<<"Does RF assignment still holds?"<<stage4_5_1.instruct.RF<<endl; 
-			stage4_5_1.instruct.EXEC = global_timer;
-			stage3_4_1.pop();
-		}
-		if(stage3_4_2.is_valid){
-			stage4_5_2.res = ALU2.operate(stage3_4_2);
-			cout<<"ALU1 operation done reseting busybit table physical register = "<<stage3_4_2.instruct.mappedrd<<"= 0 and setting stage for stage5"<<endl;
-			BusyBitTable[stage3_4_2.instruct.mappedrd] = 0;
-			stage4_5_2.is_valid = 1;
-			stage4_5_2.instruct = stage3_4_2.instruct;
-			stage4_5_2.instruct.EXEC = global_timer;
-			stage3_4_2.pop();
-		}
-	}	
-} stage4;
-
-////////////////////////////////////////////////////             STAGE 5         . /////////////////////////////////////////////////////////////////
-
-
-class Stage5{
-public:
-	void tick(){
-		if(stage4_5_1.is_valid){
-			integerRegisterFile.write(stage4_5_1.instruct.mappedrd,stage4_5_1.res);
-			stage4_5_1.is_valid = 0;
-			stage4_5_1.instruct.WB = global_timer;
-			activelist.set_done_bit(stage4_5_1.instruct);
-		}
-		if(stage4_5_2.is_valid){
-			integerRegisterFile.hi = stage4_5_2.res.first;
-			integerRegisterFile.lo = stage4_5_2.res.second;
-			stage4_5_2.is_valid = 0;
-			stage4_5_2.instruct.WB = global_timer;
-			activelist.set_done_bit(stage4_5_2.instruct);
-		}
-	}
-} stage5;
-
-bool cmp(instruction I1,instruction I2){
-	return I1.IF < I2.IF; 
-}
-
-
-int main(int argc, char * argv[]){
-	if(argc <= 1) {
-		cout<<"program.txt needed as second arguement"<<endl;
-		return 0;
-	}
-	for(int i=0;i<1000000;i++){
-		I_cache[i].PC = -1;
-	}
-	// input and fill i cache that will
-	// input the file
-	instantiateISA(); // fills the opcodes and funct maps; 
-	ifstream programFile(argv[1]);
-	if(!programFile) {
-    	cout << "Cannot open input file. :(\n";
-   	 	return 1;
- 	}
-	int PC=0;
-	string input=" ";
-	while(getline(programFile,input)){ // fill I_cache
-		if(PC > 1000000) {
-			cout<<"spspim  cant handle such a big program : keep less than one million instructions"<<endl;
-			return 0;
-		}
-		cout<<input<<endl;
-		instruction instruction_from_file(PC,input);
-		I_cache[PC] = instruction_from_file;   // this instantiates I_cache instruction through input string and PC
-		PC++;
-	}
-
-	// initiallize the required units
-	FetchUnit fetchunit;
-	DecodeUnit decodeunit;
-	// the while loop of cycle
-	int time = 8; // assume it takes 10 cycles need to figure out when to stop the pipeline
-	while(time--){
-		cout<<time<<endl;
-		global_timer++;
-
-		fetchunit.tick();
-		decodeunit.tick();
-		
-		stage3.tick(); // Stage3.tock() issues instructions whose operands are available after stage 4
-		stage4.tick(); // Stage4.tick() does everything fir stage 3 and stage 4
-		stage5.tick(); // Stage5.tick() does everything
-		stage3.tock(); // fetches operands from registers and goes into required ALU
-		//completesignal = 1;
-	}
-	programFile.close();
-	cout<<"Printing logic "<<outputorder.size()<<endl;
-	// output logic now
-	sort(outputorder.begin(),outputorder.end(),cmp); // sort in increasing order of time of IF
-	cout<<"Printing logic "<<outputorder.size()<<endl;
-	for(auto I : outputorder){
-		cout<<"Printing logic "<<outputorder.size()<<" "<<I.IF<<" "<<I.RF<<endl;
-		int i=0;
-		while(i!=I.IF) {
-			cout<<"|\t";
-			i++;
-		}
-		cout<<"| IF ";
-		while(i!=I.DE) {
-			cout<<"|\t";
-			i++;
-		}
-		cout<<"| DE ";
-		while(i!=I.RF) {
-			cout<<"|\t";
-			i++;
-		}
-		cout<<"| RF ";
-		while(i!=I.EXEC) {
-			cout<<"|\t";
-			i++;
-		}
-		cout<<"|EXEC";
-		while(i!=I.WB) {
-			cout<<"|\t";
-			i++;
-		}
-		cout<<"| WB ";
-		cout<<endl;
-	}
-
-
-}
