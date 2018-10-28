@@ -10,14 +10,14 @@ else
   LDFLAGS := -L/usr/local/lib 
 endif
 
-CPPFLAGS := -I/usr/local/include -I./ -I./entities
-CFLAGS := -std=c++11 -O3 -Wall -Wno-unused-function
+CPPFLAGS := -I/usr/local/include -I./ -I./entities/includes
+CFLAGS := -std=c++17 -Wall #-O3
 
 ######################################
 
 BIN := spsim
-SRCS := $(wildcard *.cpp) $(wildcard entities/*.cpp)
-INCLUDES := $(wildcard *.hpp) $(wildcard entities/*.hpp)
+SRCS := $(wildcard *.cpp) $(wildcard *.hpp) $(wildcard entities/src/*.cpp) $(wildcard entities/includes/*.hpp)
+INCLUDES := $(wildcard *.hpp) $(wildcard entities/includes/*.hpp)
 
 all: $(BIN)
 
