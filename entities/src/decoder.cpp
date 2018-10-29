@@ -4,8 +4,6 @@
 
 #include "decoder.hpp"
 
-#include <iostream>
-
 extern int CLOCK;
 
 Decoder::Decoder(Buffer<Instruction>* d, FreeList *f, ActiveList *a, int *r, bool *b, IntegerQueue *iq){
@@ -55,8 +53,8 @@ int Decoder::decode_instr(Instruction instr){
 
 	instr.DE = CLOCK;
 	instr.set_id();
-	iq->add(instr);
-	a->push(instr);
+	iq->add(instr); // TODO check return value
+	a->push(instr); // TODO check return value
 	return 0;
 }
 

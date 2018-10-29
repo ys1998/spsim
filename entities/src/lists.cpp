@@ -69,7 +69,7 @@ void ActiveList::graduate(Instruction& instr){
 		}
 	}
 
-	while(_q.front().second){
+	while(!_q.empty() && _q.front().second){
 		Instruction temp = _q.front().first;
 		std::tuple<int, int, int, int> t = temp.physical_regs();
 		if(std::get<3>(t) != -1){

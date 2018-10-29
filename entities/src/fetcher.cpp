@@ -14,7 +14,7 @@ Fetcher::Fetcher(Buffer<Instruction> *cache, Buffer<Instruction> *dest){
 
 void Fetcher::tock(void){
 	for(int i = 0; i < INSTR_FETCHED_PER_CYCLE; ++i){
-		if(_PC < cache->size() && (*cache)[_PC].is_valid() && dest->size() < FETCH_QUEUE_SIZE){
+		if((unsigned int)_PC < cache->size() && (*cache)[_PC].is_valid() && dest->size() < FETCH_QUEUE_SIZE){
 			Instruction temp = (*cache)[_PC++];
 			temp.IF = CLOCK;
 			dest->push_back(temp);

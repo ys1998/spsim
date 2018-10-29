@@ -27,7 +27,7 @@ Fetcher f(&ICache, &if_de_queue);
 
 FreeList fl;
 ActiveList al(&fl, &output_order);
-IntegerQueue iq;
+IntegerQueue iq(&BusyBitTable[0]);
 IntegerRegisterFile rf;
 
 Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], &iq);
@@ -61,8 +61,8 @@ void print_regs(IntegerRegisterFile &rf, int *rmap){
 }
 
 // Function to print the space-time diagram
-void print_std(Buffer<Instruction> &output_order){
-	std::cout << "Space-Time Diagram\n"<<output_order.size()<<std::endl;
+void print_std(Buffer<Instruction> output_order){
+	std::cout << "Space-Time Diagram\n";
 	std::sort(output_order.begin(), output_order.end(), cmp);
 
 	std::string IF = "\033[1;33m IF   \033[0m";

@@ -4,7 +4,13 @@
 
 #include "queues.hpp"
 
+#include <iostream>
+
 extern std::map<std::string, int> FUNCT;
+
+IntegerQueue::IntegerQueue(bool *b){
+	this->b = b;
+}
 
 int IntegerQueue::add(Instruction instr){
 	if(_q.size() < INSTR_QUEUE_SIZE){
@@ -20,12 +26,19 @@ Instruction IntegerQueue::issue(int idx){
 		case 0:
 		// send only an addition or subtraction operation
 		for(size_t i=0; i < _q.size(); ++i){
+			std::cout << "Hello\n";
 			Instruction temp = _q[i];
+			std::cout << "Hello\n";
 			auto type = temp.type();
+			std::cout << "Hello\n";
 			if(temp.is_valid() && (std::get<1>(type) == FUNCT["add"] || std::get<1>(type) == FUNCT["sub"])){
+				std::cout << "Hello\n";
 				auto regs = temp.physical_regs();
+				std::cout << "Hello\n";
 				if(!*(b + std::get<0>(regs)) && !*(b + std::get<1>(regs))){
+					std::cout << "Hello\n";
 					_q.erase(_q.begin() + i);
+					std::cout << "Hello\n";
 					return temp;
 				}
 			}
