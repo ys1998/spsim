@@ -21,7 +21,10 @@ void Issuer::tick(void){
 	for(int j=0; j < NUM_ALU; ++j){
 		if(ready[j]){
 			i[j] = iq->issue(j);
-			if(i[j].is_valid()) ready[j] = false;
+			if(i[j].is_valid()) {
+				ready[j] = false;
+				std::cout << "issued" <<std::endl;
+			}
 		}
 	}
 }

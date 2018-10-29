@@ -32,7 +32,11 @@ int Decoder::decode_instr(Instruction instr){
 	}
 	if(*(r + rt) == -1){
 		if((temp = f->find()) == -1){
-			if(found[0]) f->add(rs_);	// add already removed register
+			if(found[0]){
+				f->add(rs_);
+				*(r + rs) = -1;	
+			} 	// add already removed register
+
 			return -1;
 		}
 		*(r + rt) = rt_ = temp;
@@ -42,13 +46,20 @@ int Decoder::decode_instr(Instruction instr){
 		rt_ = *(r + rt);
 	}
 	if((temp = f->find()) == -1){
-		if(found[0]) f->add(rs_);	// add already removed register
-		if(found[1]) f->add(rt_);
+		if(found[0]) {
+			f->add(rs_);
+			*(r + rs) = -1;
+		}	// add already removed register
+		if(found[1]) {
+			f->add(rt_);
+			*(r + rt) = -1;
+		}
 		return -1;
-	}
-	instr.map(std::make_tuple(rs_, rt_, rd_, *(r + rd)));
-	*(r + rd) = rd_ = temp;
+	} 
+	rd_ = temp;
 	f->remove(rd_);
+	instr.map(std::make_tuple(rs_, rt_, rd_, *(r + rd)));
+	*(r + rd) = temp;
 	*(b + rd_) = true;
 
 	instr.DE = CLOCK;

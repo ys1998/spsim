@@ -74,18 +74,19 @@ void print_std(Buffer<Instruction> output_order){
 
 	for(auto instr : output_order){
 		int i = 1;
+		// std::cout<<instr.IF <<" " << instr.DE <<" " << instr.RF <<" " << instr.EXEC <<" " << instr.WB <<std::endl;
 		while(i++ != instr.IF)
 			std::cout << sp;
-		std::cout << IF; i++;
+		std::cout << IF;
 		while(i++ != instr.DE)
 			std::cout << IF;
-		std::cout << DE; i++;
+		std::cout << DE;
 		while(i++ != instr.RF)
 			std::cout << DE;
-		std::cout << RF; i++;
+		std::cout << RF;
 		while(i++ != instr.EXEC)
 			std::cout << RF;
-		std::cout << EX; i++;
+		std::cout << EX;
 		while(i++ != instr.WB)
 			std::cout << EX;
 		std::cout << WB;
@@ -139,32 +140,20 @@ int main(int argc, char const *argv[])
 
 	int t = 20; // CHANGE THIS
 	while(t--){
-		std::cout<<"cl"<<CLOCK++<<std::endl;
+		CLOCK++;
 		f.tick();
-		std::cout<<"1\n";
 		d.tick();
-		std::cout<<"2\n";
 		is.tick();
-		std::cout<<"3\n";
 		a1.tick();
-		std::cout<<"4\n";
 		a2.tick();
-		std::cout<<"5\n";
 		w.tick();
-		std::cout<<"6\n";
 
 		f.tock();
-		std::cout<<"7\n";
 		d.tock();
-		std::cout<<"8\n";
 		is.tock();
-		std::cout<<"9\n";
 		a1.tock();
-		std::cout<<"10\n";
 		a2.tock();
-		std::cout<<"11\n";
 		w.tock();
-		std::cout<<"12\n";
 	}
 	if(LOG_LEVEL >= 1)
 		status_msg("main", "Program simulation complete");

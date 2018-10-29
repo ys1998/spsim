@@ -14,7 +14,7 @@ protected:
 public: 
 	IntegerRegisterFile() {								// default constructor
 		for(int i=0; i < NUM_PHY_REGS; i++) {
-			value[i] = 0;
+			value[i] = i;
 		}
 		hi = lo = 0;
 	}
