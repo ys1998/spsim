@@ -23,7 +23,6 @@ void Issuer::tick(void){
 			i[j] = iq->issue(j);
 			if(i[j].is_valid()) {
 				ready[j] = false;
-				std::cout << "issued" <<std::endl;
 			}
 		}
 	}

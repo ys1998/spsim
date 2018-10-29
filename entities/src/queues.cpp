@@ -33,8 +33,6 @@ Instruction IntegerQueue::issue(int idx){
 				if(!*(b + std::get<0>(regs)) && !*(b + std::get<1>(regs))){
 					_q.erase(_q.begin() + i);
 					return temp;
-				}else{
-					std::cout << "busy0 " << *(b + std::get<0>(regs)) << " "<<*(b + std::get<1>(regs)) <<"\n";
 				}
 			}
 		}
@@ -62,8 +60,6 @@ Instruction IntegerQueue::issue(int idx){
 				if(!*(b + std::get<0>(regs)) && !*(b + std::get<1>(regs))){
 					_q.erase(_q.begin() + i);
 					return temp;
-				}else{
-					std::cout << "busy1 " << *(b + std::get<0>(regs)) << " "<<*(b + std::get<1>(regs)) <<"\n";
 				}
 			}
 		}

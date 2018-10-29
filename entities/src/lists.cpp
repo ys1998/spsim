@@ -55,7 +55,6 @@ int ActiveList::push(Instruction instr){
 }
 
 void ActiveList::graduate(Instruction& instr){
-	std::cout<<"gr\n";
 	for(auto& p : _q){
 		if(p.first.get_id() == instr.get_id()){
 			p.second = true;

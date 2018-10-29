@@ -15,34 +15,6 @@ int LOG_LEVEL = 1;
 int CLOCK = 0;
 std::map<std::string, int> OPCODE, FUNCT;
 
-/**********************************************************************************
-					Instantiate classes and build data path
-**********************************************************************************/
-
-Buffer<Instruction> output_order, ICache, if_de_queue;
-int RegisterMapping[NUM_LOG_REGS];
-bool BusyBitTable[NUM_PHY_REGS]; 
-
-Fetcher f(&ICache, &if_de_queue);
-
-FreeList fl;
-ActiveList al(&fl, &output_order);
-IntegerQueue iq(&BusyBitTable[0]);
-IntegerRegisterFile rf;
-
-Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], &iq);
-
-Latch< std::tuple<Instruction, int, int> > in_latch_1, in_latch_2;
-
-Issuer is(&iq, &rf);
-
-Latch< std::tuple<Instruction, int> > out_latch_1;
-Latch< std::tuple<Instruction, int, int> > out_latch_2;
-
-ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0]);
-ALU2 a2(&in_latch_2, &out_latch_2, &BusyBitTable[0]);
-
-Writer w(&out_latch_1, &out_latch_2, &al, &rf);
 
 /**********************************************************************************
 							Functions for printing results
@@ -74,6 +46,7 @@ void print_std(Buffer<Instruction> output_order){
 
 	for(auto instr : output_order){
 		int i = 1;
+		std::cout << instr.text << "\t\t";
 		// std::cout<<instr.IF <<" " << instr.DE <<" " << instr.RF <<" " << instr.EXEC <<" " << instr.WB <<std::endl;
 		while(i++ != instr.IF)
 			std::cout << sp;
@@ -109,6 +82,48 @@ int main(int argc, char const *argv[])
 	}
 
 	initialize_ISA();
+
+	/**********************************************************************************
+						Instantiate classes and build data path
+	**********************************************************************************/
+
+	Buffer<Instruction> output_order, ICache, if_de_queue;
+	int RegisterMapping[NUM_LOG_REGS];
+	bool BusyBitTable[NUM_PHY_REGS]; 
+
+	Fetcher f(&ICache, &if_de_queue);
+
+	FreeList fl;
+	ActiveList al(&fl, &output_order);
+	IntegerQueue iq(&BusyBitTable[0]);
+	IntegerRegisterFile rf;
+
+	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], &iq);
+
+	Latch< std::tuple<Instruction, int, int> > in_latch_1, in_latch_2;
+
+	Issuer is(&iq, &rf);
+
+	Latch< std::tuple<Instruction, int> > out_latch_1;
+	Latch< std::tuple<Instruction, int, int> > out_latch_2;
+
+	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0]);
+	ALU2 a2(&in_latch_2, &out_latch_2, &BusyBitTable[0]);
+
+	Writer w(&out_latch_1, &out_latch_2, &al, &rf);
+
+	/**********************************************************************************
+	**********************************************************************************/
+
+
+
+
+
+
+
+
+
+
 	std::ifstream programFile(argv[1]);
 	if(!programFile) {
     	error_msg("main", "Unable to open program file");

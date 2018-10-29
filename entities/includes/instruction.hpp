@@ -25,13 +25,13 @@ protected:
 	int rs_, rt_, rd_;			// physical register mappings
 	int _rd;					// previous mapping for physical destination register
 	int opcode, funct, shamt;	// instruction type and data fields
-	std::string text;			// instruction in words
 
 	// other control fields
 	// bool is_branch;
 
 public:
 	int IF, DE, RF, EXEC, WB;	// clock values when this instruction entered each stage
+	std::string text;			// instruction in words
 	
 	Instruction();											// default constructor
 	Instruction(int, std::string);							// construct instruction from string

@@ -40,10 +40,8 @@ void ALU1::tick(void){
 			in1 = std::get<1>(inp);
 			in2 = std::get<2>(inp);
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
-				std::cout << "ent101" <<std::endl;
 				operate();
 				*(b + std::get<2>(i.physical_regs())) = false;
-				std::cout << "fr" << std::get<2>(i.physical_regs()) << std::endl;
 			}else{
 				stall_cycles = latencies[std::get<1>(i.type())] - 1;	
 			}
@@ -101,7 +99,6 @@ void ALU2::tick(void){
 		if(i.is_valid()){
 			operate();
 			*(b + std::get<2>(i.physical_regs())) = false;
-			std::cout << "fr" << std::get<2>(i.physical_regs()) << std::endl;
 		}
 		if(in->valid() && read){
 			auto inp = in->read();
@@ -109,10 +106,8 @@ void ALU2::tick(void){
 			in1 = std::get<1>(inp);
 			in2 = std::get<2>(inp);
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
-				std::cout << "ent102" <<std::endl;
 				operate();
 				*(b + std::get<2>(i.physical_regs())) = false;
-				std::cout << "fr" << std::get<2>(i.physical_regs()) << std::endl;
 			}else{
 				stall_cycles = latencies[std::get<1>(i.type())] - 1;	
 			}
