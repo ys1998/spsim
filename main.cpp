@@ -10,11 +10,11 @@
 #include <fstream>
 #include <string>
 #include <tuple>
+#include <iomanip>
 
 int LOG_LEVEL = 1;
 int CLOCK = 0;
 std::map<std::string, int> OPCODE, FUNCT;
-
 
 /**********************************************************************************
 							Functions for printing results
@@ -23,12 +23,22 @@ std::map<std::string, int> OPCODE, FUNCT;
 // Function to print the current value of all registers
 void print_regs(IntegerRegisterFile &rf, int *rmap){
 	std::cout << "Integer Registers\n";
-	std::cout << "\033[1;36mRegister\tValue\033[0m\n";
-	for(int i=0; i < NUM_LOG_REGS; ++i){
-		if(*(rmap + i) != -1)
-			std::cout << i << "\t" << rf.read(*(rmap + i)) << std::endl;
-		else
-			std::cout << i << "\t" << 0 << std::endl;
+	for(int j=0; j<4; ++j){
+		std::cout << "\033[0;36m  Reg  Val\033[0m";
+	}
+	std::cout << "\n";
+	for(int i=0; i < NUM_LOG_REGS/4; ++i){
+		for(int j=0; j < 4; ++j){
+			if(*(rmap + j*NUM_LOG_REGS/4 + i) != -1)
+				std::cout << "\033[1;36m" <<
+				std::setfill(' ') << std::setw(5) << j*NUM_LOG_REGS/4 + i << "\033[0m" <<
+				std::setfill(' ') << std::setw(5) << rf.read(*(rmap + j*NUM_LOG_REGS/4 + i));
+			else
+				std::cout << "\033[1;36m" <<
+				std::setfill(' ') << std::setw(5) << j*NUM_LOG_REGS/4 + i << "\033[0m" <<
+				std::setfill(' ') << std::setw(5) << 0;
+		}
+		std::cout << std::endl;
 	}
 }
 
@@ -37,17 +47,16 @@ void print_std(Buffer<Instruction> output_order){
 	std::cout << "Space-Time Diagram\n";
 	std::sort(output_order.begin(), output_order.end(), cmp);
 
-	std::string IF = "\033[1;33m IF   \033[0m";
-	std::string DE = "\033[1;32m DE   \033[0m";
-	std::string RF = "\033[1;31m RF   \033[0m";
-	std::string EX = "\033[1;34m EXEC \033[0m";
-	std::string WB = "\033[1;35m WB   \033[0m";
+	std::string IF = "\033[1;43m  IF  \033[0m";
+	std::string DE = "\033[1;42m  DE  \033[0m";
+	std::string RF = "\033[1;41m  RF  \033[0m";
+	std::string EX = "\033[1;44m EXEC \033[0m";
+	std::string WB = "\033[1;45m  WB  \033[0m";
 	std::string sp = "      ";
 
 	for(auto instr : output_order){
 		int i = 1;
-		std::cout << instr.text << "\t\t";
-		// std::cout<<instr.IF <<" " << instr.DE <<" " << instr.RF <<" " << instr.EXEC <<" " << instr.WB <<std::endl;
+		std::cout << instr.text << "\t";
 		while(i++ != instr.IF)
 			std::cout << sp;
 		std::cout << IF;
@@ -81,6 +90,11 @@ int main(int argc, char const *argv[])
 		LOG_LEVEL = l;
 	}
 
+	std::ifstream programFile(argv[1]);
+	if(!programFile) {
+    	error_msg("main", "Unable to open program file");
+ 	}
+
 	initialize_ISA();
 
 	/**********************************************************************************
@@ -112,22 +126,7 @@ int main(int argc, char const *argv[])
 
 	Writer w(&out_latch_1, &out_latch_2, &al, &rf);
 
-	/**********************************************************************************
-	**********************************************************************************/
-
-
-
-
-
-
-
-
-
-
-	std::ifstream programFile(argv[1]);
-	if(!programFile) {
-    	error_msg("main", "Unable to open program file");
- 	}
+	/**********************************************************************************/
 
 	int PC = 0;
 	std::string input = "";
@@ -173,9 +172,13 @@ int main(int argc, char const *argv[])
 	if(LOG_LEVEL >= 1)
 		status_msg("main", "Program simulation complete");
 
+	std::cout << std::endl;
 	print_std(output_order);
+
+	std::cout << std::endl;
 	print_regs(rf, &RegisterMapping[0]);
 
+	std::cout << std::endl;
 	if(LOG_LEVEL >= 1)
 		status_msg("main", "Space-Time Diagram and register values displayed");
     
