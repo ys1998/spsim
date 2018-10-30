@@ -32,13 +32,13 @@ void ALU1::tick(void){
 		if(i.is_valid()){
 			operate();
 			*(b + std::get<2>(i.physical_regs())) = false;
-			std::cout << "fr" << std::get<2>(i.physical_regs()) << std::endl;
 		}
 		if(in->valid() && read){
 			auto inp = in->read();
 			i = std::get<0>(inp);
 			in1 = std::get<1>(inp);
 			in2 = std::get<2>(inp);
+			i.EXEC = CLOCK;
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 				operate();
 				*(b + std::get<2>(i.physical_regs())) = false;
@@ -58,7 +58,6 @@ void ALU1::tock(void){
 				read = false;	// previous data has not been read; stall
 			}else{
 				read = true;
-				i.EXEC = CLOCK;
 				out->write(std::make_tuple(i, res));
 				Instruction reset; i = reset;
 			}
@@ -105,6 +104,7 @@ void ALU2::tick(void){
 			i = std::get<0>(inp);
 			in1 = std::get<1>(inp);
 			in2 = std::get<2>(inp);
+			i.EXEC = CLOCK;
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 				operate();
 				*(b + std::get<2>(i.physical_regs())) = false;
@@ -124,7 +124,6 @@ void ALU2::tock(void){
 				read = false;	// previous data has not been read; stall
 			}else{
 				read = true;
-				i.EXEC = CLOCK;
 				out->write(std::make_tuple(i, lo, hi));
 				Instruction reset; i = reset;
 			}
