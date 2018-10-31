@@ -32,7 +32,7 @@ void Issuer::tock(void){
 	for(int j=0; j < NUM_ALU; ++j){
 		if(!l[j]->valid() && i[j].is_valid()){		// write only when previous data has been read
 			auto regs = i[j].physical_regs();
-			i[j].RF = CLOCK;
+			// i[j].RF = CLOCK;
 			l[j]->write(std::make_tuple(i[j], rf->read(std::get<0>(regs)), rf->read(std::get<1>(regs))));
 			ready[j] = true;
 		}

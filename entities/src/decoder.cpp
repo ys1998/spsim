@@ -63,6 +63,7 @@ int Decoder::decode_instr(Instruction instr){
 	*(b + rd_) = true;
 
 	instr.DE = CLOCK;
+	instr.RF = CLOCK+1;
 	instr.set_id();
 	iq->add(instr); // TODO check return value
 	a->push(instr); // TODO check return value
