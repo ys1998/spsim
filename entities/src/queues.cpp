@@ -24,7 +24,22 @@ int IntegerQueue::add(Instruction instr){
 Instruction IntegerQueue::issue(int idx){
 	switch(idx){
 		case 0:
+		// PREFER branch
+		for(size_t i=0; i < _q.size(); ++i){
+			Instruction temp = _q[i];
+			auto type = temp.type();
+			if(temp.is_valid() && (std::get<0>(type) == OPCODE["beq"] || std::get<0>(type) == OPCODE["beq"])){
+				auto regs = temp.physical_regs();
+				if(!*(b + std::get<0>(regs)) && !*(b + std::get<1>(regs))){
+					_q.erase(_q.begin() + i);
+					return temp;
+				}
+			}
+		}
+
 		// send only an addition or subtraction operation
+
+
 		for(size_t i=0; i < _q.size(); ++i){
 			Instruction temp = _q[i];
 			auto type = temp.type();
@@ -70,4 +85,17 @@ Instruction IntegerQueue::issue(int idx){
 	}
 	// send an invalid operation/instruction if no match is found
 	return Instruction();
+}
+
+
+void IntegerQueue::flush(int id)
+{
+	for(size_t i=0; i < _q.size(); ++i){
+			Instruction temp = _q[i];
+			if(temp.get_id() >  id){
+				_q.erase(_q.begin() + i);
+				i--;
+			}
+	}
+
 }

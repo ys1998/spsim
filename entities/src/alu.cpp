@@ -8,11 +8,13 @@ extern std::map<std::string, int> OPCODE, FUNCT;
 extern int CLOCK;
 
 ALU1::ALU1(	Latch< std::tuple<Instruction, int, int> >* in, 
-			Latch< std::tuple<Instruction, int> >* out, bool* b){
-	this->in = in; this->out = out; this->b = b;
+			Latch< std::tuple<Instruction, int> >* out, bool* b,
+			Flusher *f){
+	this->in = in; this->out = out; this->b = b; this->f = f;
 	// store latencies of operations
 	latencies[FUNCT["add"]] = LATENCY_ADD;
 	latencies[FUNCT["sub"]] = LATENCY_SUB;
+	latencies[0] = 1;
 	// set stall cycles to zero
 	stall_cycles = 0;
 	read = true;
@@ -20,10 +22,35 @@ ALU1::ALU1(	Latch< std::tuple<Instruction, int, int> >* in,
 
 void ALU1::operate(void){
 	int funct = std::get<1>(i.type());
+	int opcode = std::get<0>(i.type());
 	if(funct == FUNCT["add"]){
 		res = in1 + in2;
 	}else if(funct == FUNCT["sub"]){
 		res = in1 - in2;
+	}else if(opcode != 0){
+		if ((opcode == OPCODE["beq"]) || (opcode == OPCODE["bne"]))
+		{	
+			if (opcode == OPCODE["beq"])
+			{
+				res = (in1 == in2);
+			}
+			else if (opcode == OPCODE["bne"])
+			{
+				res = (in1 != in2);
+			}
+			int possible_jump_address = i.get_pc() + 1 + i.get_immediate();
+			////// Write predictor update function
+			///////////////////////////////////////////
+			/// 
+			/// 
+			if (res != i.predicted || ((res == 1) && (possible_jump_address != i.jumpAddressPred)))
+			///		case of misprediction
+			{
+				if(res == 0) possible_jump_address = i.get_pc()+1;
+				f->flush(i.get_id(),possible_jump_address);
+			}
+				
+		}	
 	} 
 }
 
@@ -130,3 +157,13 @@ void ALU2::tock(void){
 		}
 	}
 }
+
+// void ALU::flush(int id){
+// 	// if(i.get_id() > id){
+// 	// 	Instruction reset;
+// 	// 	i = reset;
+// 	// 	stall_cycles = 0;
+// 	// 	read = true;
+// 	// }
+// 	return;
+// }

@@ -38,3 +38,19 @@ void Issuer::tock(void){
 		}
 	}
 }
+
+void Issuer::flush(int id){
+	iq->flush(id);
+	for(int j=0; j < NUM_ALU; ++j){
+		if(l[j]->valid()){
+			auto inp = l[j]->read();
+			auto iRead = std::get<0>(inp);
+			auto in1 = std::get<1>(inp);
+			auto in2 = std::get<2>(inp);
+			if(iRead.get_id() < id){
+				l[j]->write(std::make_tuple(iRead, in1, in2 ));
+			}
+		}
+	}
+
+}

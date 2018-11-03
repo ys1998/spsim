@@ -5,6 +5,7 @@
 #include "lists.hpp"
 
 #include <iostream>
+#include <string>
 
 FreeList::FreeList(){
 	for(int i = 0 ; i < NUM_PHY_REGS ; i++)
@@ -76,5 +77,18 @@ void ActiveList::graduate(Instruction& instr){
 		}
 		o->push_back(temp);
 		_q.pop_front();
+	}
+}
+
+void ActiveList::flush(int id){
+	for(auto& p : _q){
+		if(p.first.get_id() > id){
+			p.second = true;
+			p.first.IF = 0;
+			p.first.DE = 0;
+			p.first.RF = 0;
+			p.first.EXEC = 0;
+			p.first.WB = 0;
+		}
 	}
 }

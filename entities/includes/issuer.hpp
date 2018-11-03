@@ -27,6 +27,7 @@ public:
 	void attach_latch(int, Latch< std::tuple<Instruction, int, int> >*);	// function to connect latches to this unit
 	void tick();		
 	void tock();
+	void flush(int);
 };
 
 #endif

@@ -9,7 +9,7 @@ class ClockedEntity {
 public:
 	virtual void tick(void){}
 	virtual void tock(void){}
-	virtual void flush(void){}
+	virtual void flush(int){}
 };
 
 #endif

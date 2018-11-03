@@ -65,6 +65,7 @@ int Decoder::decode_instr(Instruction instr){
 	instr.DE = CLOCK;
 	instr.RF = CLOCK+1;
 	instr.set_id();
+	
 	iq->add(instr); // TODO check return value
 	a->push(instr); // TODO check return value
 	return 0;
@@ -72,6 +73,7 @@ int Decoder::decode_instr(Instruction instr){
 
 void Decoder::tick(void){
 	while(!d->empty()) {
+		std::cout<< "Decoder ticking\n";
 		_q.push_back(d->front()); d->pop_front();
 	}
 }
@@ -80,6 +82,8 @@ void Decoder::tock(void){
 	int cnt = 0;
 	size_t i = 0; 
 	while(!_q.empty() && cnt < INSTR_DECODED_PER_CYCLE && i < _q.size()){
+
+		std::cout<< "Decoder tocking\n";
 		if(decode_instr(_q[i]) < 0){
 			++i;
 		}else{
@@ -87,4 +91,29 @@ void Decoder::tock(void){
 			cnt++;
 		}
 	}
+}
+
+void Decoder::flush(int id){
+	for(size_t i=0; i < _q.size(); ++i){
+			Instruction temp = _q[i];
+			// if(temp.get_id() >  id){
+				_q.erase(_q.begin() + i);
+				i--;
+			// }
+	}
+	for(size_t i=0; i < d->size(); ++i){
+			Instruction temp = (*d) [i]  ;
+			// if(temp.get_id() >  id){
+				/* Clean eveerything NO check needed */
+				d->erase(d->begin() + i);
+				i--;
+			// }
+	}
+	std::cout << "AFTER FLUSH THE PIPE IS \n";
+	for(size_t i=0; i < _q.size(); ++i){
+			Instruction temp = _q[i] ;
+			std::cout << temp.text << "\n";
+	}
+	a->flush(id);
+
 }

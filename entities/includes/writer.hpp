@@ -27,6 +27,7 @@ public:
 			Latch< std::tuple<Instruction, int, int> >*, ActiveList*, IntegerRegisterFile*);
 	void tick();
 	void tock();
+	void flush(int);
 };
 
 #endif

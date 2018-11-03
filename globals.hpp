@@ -29,6 +29,8 @@ using Buffer = std::deque<T>;
 // Latencies for different operations
 #define LATENCY_ADD 1
 #define LATENCY_SUB 1
+#define LATENCY_BEQ 1
+#define LATENCY_BNE 1
 #define LATENCY_MULT 6
 #define LATENCY_DIV 35
 

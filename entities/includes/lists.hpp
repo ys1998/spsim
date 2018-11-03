@@ -33,6 +33,7 @@ public:
 	int push(Instruction);										// push an instruction if list isn't full
 	void graduate(Instruction&);								// mark given instruction as completed and remove 
 																// consecutive graduated instructions from front
+	void flush(int);
 };
 
 #endif

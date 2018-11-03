@@ -18,6 +18,7 @@ public:
 	IntegerQueue(bool*);				// constructor
 	int add(Instruction);				// add instruction to this queue
 	Instruction issue(int);				// issue a specific instruction to an ALU
+	void flush(int);
 };
 
 #endif
