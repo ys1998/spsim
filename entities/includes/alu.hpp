@@ -31,6 +31,7 @@ public:
 	ALU2(Latch< std::tuple<Instruction, int, int> >*, Latch< std::tuple<Instruction, int, int> >*, bool*);
 	void tick();
 	void tock();
+	void flush(int);
 };
 
 
@@ -44,10 +45,11 @@ protected:
 	Latch< std::tuple<Instruction, int, int> >* in;		// latch from which input is read
 	Latch< std::tuple<Instruction, int> >* out;			// latch where output is stored/passed
 	bool *b;											// pointer to busy bit table
+	ALU2 *a;
 	Flusher *f;
 	void operate();										// function to perform the specified operation
 public:
-	ALU1(Latch< std::tuple<Instruction, int, int> >*, Latch< std::tuple<Instruction, int> >*, bool*, Flusher*);
+	ALU1(Latch< std::tuple<Instruction, int, int> >*, Latch< std::tuple<Instruction, int> >*, bool*, ALU2*, Flusher*);
 	void tick();
 	void tock();
 };

@@ -16,7 +16,6 @@ void Fetcher::tock(void){
 	for(int i = 0; i < INSTR_FETCHED_PER_CYCLE; ++i){
 		if((unsigned int)_PC < cache->size() && (*cache)[_PC].is_valid() && dest->size() < FETCH_QUEUE_SIZE){
 			Instruction temp = (*cache)[_PC++];
-			std::cout<< _PC << temp.text <<"\n";
 			temp.IF = CLOCK;
 			dest->push_back(temp);
 		}
@@ -25,5 +24,4 @@ void Fetcher::tock(void){
 
 void Fetcher::update_PC(int PC){
 	_PC = PC;
-	std::cout<< _PC << "PC updated\n";
 }

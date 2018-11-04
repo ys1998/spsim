@@ -24,7 +24,7 @@ int IntegerQueue::add(Instruction instr){
 Instruction IntegerQueue::issue(int idx){
 	switch(idx){
 		case 0:
-		// PREFER branch
+		// prefer branch
 		for(size_t i=0; i < _q.size(); ++i){
 			Instruction temp = _q[i];
 			auto type = temp.type();
@@ -38,8 +38,6 @@ Instruction IntegerQueue::issue(int idx){
 		}
 
 		// send only an addition or subtraction operation
-
-
 		for(size_t i=0; i < _q.size(); ++i){
 			Instruction temp = _q[i];
 			auto type = temp.type();
@@ -88,14 +86,13 @@ Instruction IntegerQueue::issue(int idx){
 }
 
 
-void IntegerQueue::flush(int id)
-{
-	for(size_t i=0; i < _q.size(); ++i){
-			Instruction temp = _q[i];
-			if(temp.get_id() >  id){
-				_q.erase(_q.begin() + i);
-				i--;
-			}
+void IntegerQueue::flush(int id){
+	size_t i=0;
+	while(i < _q.size()){
+		if(_q[i].get_id() > id){
+			_q.erase(_q.begin() + i);
+		}else{
+			i++;
+		}
 	}
-
 }

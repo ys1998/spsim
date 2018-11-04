@@ -1,16 +1,14 @@
-
+/*
+	Class declaration for the flushing unit responsible for clearing 
+	invalid instructions due to mispredicted branches.
+*/
 
 #ifndef _FLUSHER_HPP
 #define _FLUSHER_HPP
 
-#include "instruction.hpp"
 #include "fetcher.hpp"
-#include "register.hpp"
-#include "lists.hpp"
 #include "decoder.hpp"
-#include "queues.hpp"
 #include "issuer.hpp"
-#include "latch.hpp"
 #include "writer.hpp"
 
 class Flusher {

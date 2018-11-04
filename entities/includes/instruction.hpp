@@ -27,9 +27,6 @@ protected:
 	int opcode, funct, shamt;	// instruction type and data fields
 	int immediate;
 
-	// other control fields
-	// bool is_branch;
-
 public:
 	int IF, DE, RF, EXEC, WB;	// clock values when this instruction entered each stage
 	std::string text;			// instruction in words

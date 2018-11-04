@@ -58,23 +58,25 @@ void print_std(Buffer<Instruction> output_order){
 
 	for(auto instr : output_order){
 		int i = 1;
-		std::cout << instr.text << "\t";
-		while(i < instr.WB && i++ != instr.IF)
-			std::cout << sp;
-		std::cout << IF;
-		while(i < instr.WB && i++ != instr.DE)
+		if(instr.IF > 0){
+			std::cout << instr.text << "\t";
+			while(i < instr.WB && i++ != instr.IF)
+				std::cout << sp;
 			std::cout << IF;
-		std::cout << DE;
-		while(i < instr.WB && i++ != instr.RF)
+			while(i < instr.WB && i++ != instr.DE)
+				std::cout << IF;
 			std::cout << DE;
-		std::cout << RF;
-		while(i < instr.WB && i++ != instr.EXEC)
+			while(i < instr.WB && i++ != instr.RF)
+				std::cout << DE;
 			std::cout << RF;
-		std::cout << EX;
-		while(i < instr.WB && i++ != instr.WB)
+			while(i < instr.WB && i++ != instr.EXEC)
+				std::cout << RF;
 			std::cout << EX;
-		std::cout << WB;
-		std::cout << std::endl;
+			while(i < instr.WB && i++ != instr.WB)
+				std::cout << EX;
+			std::cout << WB;
+			std::cout << std::endl;
+		}
 	}
 }
 
@@ -126,8 +128,8 @@ int main(int argc, char const *argv[])
 	ALU2 a2(&in_latch_2, &out_latch_2, &BusyBitTable[0]);
 
 	Writer w(&out_latch_1, &out_latch_2, &al, &rf);
-	Flusher flsh( &is, &f, &d, &w);
-	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &flsh);
+	Flusher flsh(&is, &f, &d, &w);
+	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &flsh);
 	/**********************************************************************************/
 
 	int PC = 0;
