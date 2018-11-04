@@ -12,12 +12,13 @@
 template <class T>
 using Buffer = std::deque<T>;
 
+
 // Hardware details
 #define NUM_LOG_REGS 32				// number of logical registers
 #define NUM_PHY_REGS 64				// number of physical registers
 #define INSTR_FETCHED_PER_CYCLE 2	// number of instructions fetched from cache per cycle
 #define INSTR_DECODED_PER_CYCLE 2	// number of instructions decoded per cycle
-#define NUM_ALU 2					// number of Arithmetic Logic Units
+#define NUM_ALU 4					// number of Arithmetic Logic Units
 
 // Bounds on sizes
 #define PROG_SIZE 1000000			// maximum number of instructions in program
@@ -25,12 +26,14 @@ using Buffer = std::deque<T>;
 #define DECODE_QUEUE_SIZE 32		// size of queue holding decoded instructions
 #define ACTIVE_LIST_SIZE 64			// maximum number of active instructions
 #define INSTR_QUEUE_SIZE 16			// maximum number of queued instructions
+#define DCACHE_SIZE 100             /// 100 integers can be stored (addrresses indexed by arary)
 
 // Latencies for different operations
 #define LATENCY_ADD 1
 #define LATENCY_SUB 1
 #define LATENCY_MULT 6
 #define LATENCY_DIV 35
+#define LATENCY_SW 1
 
 extern std::map<std::string, int> OPCODE;
 extern std::map<std::string, int> FUNCT;

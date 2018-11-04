@@ -20,6 +20,7 @@ public:
     void write(const T &x){
         is_valid = true;
         _x = x;
+        
     }
 };
 

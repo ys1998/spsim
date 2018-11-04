@@ -50,9 +50,10 @@ void print_std(Buffer<Instruction> output_order){
 	std::string IF = "\033[1;43m  IF  \033[0m";
 	std::string DE = "\033[1;42m  DE  \033[0m";
 	std::string RF = "\033[1;41m  RF  \033[0m";
-	std::string EX = "\033[1;44m EXEC \033[0m";
-	std::string WB = "\033[1;45m  WB  \033[0m";
-	std::string sp = "      ";
+	std::string EX =  "\033[1;44m EXEC \033[0m";
+	std::string MEM = "\033[1;48m MEM \033[0m";
+	std::string WB =  "\033[1;45m  WB  \033[0m";
+	std::string sp =  "      ";
 
 	for(auto instr : output_order){
 		int i = 1;
@@ -63,16 +64,31 @@ void print_std(Buffer<Instruction> output_order){
 		while(i++ != instr.DE)
 			std::cout << IF;
 		std::cout << DE;
-		while(i++ != instr.RF)
+		while(i++ != instr.RF1)
 			std::cout << DE;
 		std::cout << RF;
 		while(i++ != instr.EXEC)
 			std::cout << RF;
 		std::cout << EX;
-		while(i++ != instr.WB)
-			std::cout << EX;
-		std::cout << WB;
-		std::cout << std::endl;
+		if(std::get<0>(instr.type())== OPCODE["lw"] || std::get<0>(instr.type())== OPCODE["sw"]){
+			while(i++ != instr.RF2)
+				std::cout << EX;
+			std::cout << RF;// << i << instr.MEM;
+			while (i++ != instr.MEM)
+				std::cout << RF;
+			std::cout << MEM;
+			while(i++ != instr.WB)
+				std::cout << MEM;
+			std::cout << WB;
+			std::cout << std::endl;			
+		}
+		else {
+			while(i++ != instr.WB)
+				std::cout << EX;
+			std::cout << WB;
+			std::cout << std::endl;
+		}
+
 	}
 }
 
@@ -102,29 +118,36 @@ int main(int argc, char const *argv[])
 	**********************************************************************************/
 
 	Buffer<Instruction> output_order, ICache, if_de_queue;
+	int DCache[DCACHE_SIZE];
 	int RegisterMapping[NUM_LOG_REGS];
 	bool BusyBitTable[NUM_PHY_REGS]; 
+
+
 
 	Fetcher f(&ICache, &if_de_queue);
 
 	FreeList fl;
 	ActiveList al(&fl, &output_order);
 	IntegerQueue iq(&BusyBitTable[0]);
+	AddressQueue aq(&BusyBitTable[0]);
 	IntegerRegisterFile rf;
 
-	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], &iq);
+	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], &iq,&aq);
 
-	Latch< std::tuple<Instruction, int, int> > in_latch_1, in_latch_2;
+	Latch< std::tuple<Instruction, int, int> > in_latch_1, in_latch_2,in_latch_3,in_latch_4;
 
-	Issuer is(&iq, &rf);
+	Issuer is(&iq, &aq, &rf);
+	// Issuer is_1(&iq, &aq, &rf);                                    //// after address calulation issuing to memory stage
 
-	Latch< std::tuple<Instruction, int> > out_latch_1;
+	Latch< std::tuple<Instruction, int> > out_latch_1,out_latch_3,out_latch_4;
 	Latch< std::tuple<Instruction, int, int> > out_latch_2;
 
 	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0]);
 	ALU2 a2(&in_latch_2, &out_latch_2, &BusyBitTable[0]);
+	ALU3  a3(&in_latch_3, &out_latch_3, &BusyBitTable[0]);
+	MEM   mem(&in_latch_4,&out_latch_4,&DCache[0],&BusyBitTable[0]);
 
-	Writer w(&out_latch_1, &out_latch_2, &al, &rf);
+	Writer w(&out_latch_1, &out_latch_2,&out_latch_4,&al, &rf);
 
 	/**********************************************************************************/
 
@@ -145,12 +168,17 @@ int main(int argc, char const *argv[])
 		status_msg("main", "Program parsing complete");
 
 	// Complete building and initializing the data path
-	is.attach_latch(0, &in_latch_1);
-	is.attach_latch(1, &in_latch_2);
+	is.attach_latch(0, &in_latch_1,1);
+	is.attach_latch(1, &in_latch_2,1);
+	is.attach_latch(2,&in_latch_3,2);
+	is.attach_latch(3,&in_latch_4,3);
+	is.attach_cal_latch_outer(&out_latch_3);
 	for(int i=0; i<NUM_LOG_REGS; ++i)
 		RegisterMapping[i] = -1;
 	for(int i=0; i<NUM_PHY_REGS; ++i)
 		BusyBitTable[i] = false;
+	for(int i=0; i<DCACHE_SIZE;++i)
+		DCache[i] = 0;                    
 
 	int t = 20; // CHANGE THIS
 	while(t--){
@@ -160,6 +188,9 @@ int main(int argc, char const *argv[])
 		is.tick();
 		a1.tick();
 		a2.tick();
+		a3.tick();
+		mem.tick();
+		// is1.tick();
 		w.tick();
 
 		f.tock();
@@ -167,6 +198,9 @@ int main(int argc, char const *argv[])
 		is.tock();
 		a1.tock();
 		a2.tock();
+		a3.tock();
+		mem.tock();
+		// is1.tock();
 		w.tock();
 	}
 	if(LOG_LEVEL >= 1)

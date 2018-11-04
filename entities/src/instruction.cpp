@@ -12,6 +12,9 @@ void initialize_ISA(void){
 	OPCODE["add"] = OPCODE["sub"] = OPCODE["mult"] = OPCODE["div"] =  0;
 	OPCODE["beq"] = 4;
 	OPCODE["bne"] = 5;
+	OPCODE["lw"] = 6;
+	OPCODE["sw"] = 7;
+
 
 	FUNCT["add"] = 32;
 	FUNCT["sub"] = 34;
@@ -19,6 +22,8 @@ void initialize_ISA(void){
 	FUNCT["div"] = 26;
 	FUNCT["beq"] = 0;
 	FUNCT["bne"] = 0;
+	FUNCT["lw"] = 0;
+	FUNCT["sw"] = 0;
 }
 
 int Instruction::cnt = 0;
@@ -32,7 +37,7 @@ Instruction::Instruction(int _PC, std::string instr){
 	ID = -1;
 	PC = _PC;
 	_rd = -1;
-	IF = DE = RF = EXEC = WB = -1;
+	IF = DE = RF1 = EXEC = RF2= MEM= WB = -1;
 	shamt = 0;
 	text = instr;
 	// is_branch = false;
@@ -58,9 +63,17 @@ Instruction::Instruction(int _PC, std::string instr){
 			}
 			break;
 			case 2:
-			iss >> rs;
+			if(opcode==6||opcode==7){
+				iss >> immediate;
+				if(immediate>pow(2,15)||immediate<-pow(2,15))
+				error_msg("parser", "Invalid immediate immediate = " + std::to_string(immediate) + ", line " + std::to_string(_PC));
+				 	
+			}
+			else
+			{	iss >> rs;
 			if(rs < 0 || rs >= NUM_LOG_REGS){
 				error_msg("parser", "Invalid register rs = " + std::to_string(rs) + ", line " + std::to_string(_PC));
+				}
 			}
 			break;
 			case 3:
@@ -68,6 +81,8 @@ Instruction::Instruction(int _PC, std::string instr){
 			if(rt < 0 || rt >= NUM_LOG_REGS){
 				error_msg("parser", "Invalid register rt = " + std::to_string(rt) + ", line " + std::to_string(_PC));
 			}
+			if(opcode==6||opcode==7)
+				rs=rt;
 			break;
 			default:
 			iss >> extra;
@@ -78,10 +93,13 @@ Instruction::Instruction(int _PC, std::string instr){
 }
 
 void Instruction::map(std::tuple<int, int, int, int> t){
-	rs_ = std::get<0>(t);
 	rt_ = std::get<1>(t);
 	rd_ = std::get<2>(t);
 	_rd = std::get<3>(t);
+	// if(opcode!=6&&opcode!=7)
+	rs_ = std::get<0>(t);
+	// else
+		// rs_=rt_;
 }
 
 std::tuple<int, int, int, int> Instruction::physical_regs(void){
@@ -89,7 +107,14 @@ std::tuple<int, int, int, int> Instruction::physical_regs(void){
 }
 
 std::tuple<int, int, int> Instruction::logical_regs(void){
-	return std::make_tuple(rs, rt, rd);
+	// if(opcode!=6&&opcode!=7)
+		return std::make_tuple(rs, rt, rd);
+	// else
+		// return std::make_tuple(immediate, rt, rd);
+}
+
+int Instruction::get_imm(void){
+	return immediate;
 }
 
 std::tuple<int, int> Instruction::type(void){

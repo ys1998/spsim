@@ -5,7 +5,7 @@
 #include "lists.hpp"
 
 #include <iostream>
-
+using namespace std;
 FreeList::FreeList(){
 	for(int i = 0 ; i < NUM_PHY_REGS ; i++)
 		free[i] = true;
@@ -61,8 +61,11 @@ void ActiveList::graduate(Instruction& instr){
 			// update the clock times
 			p.first.IF = instr.IF;
 			p.first.DE = instr.DE;
-			p.first.RF = instr.RF;
+			p.first.RF1 = instr.RF1;
 			p.first.EXEC = instr.EXEC;
+			// cout<<instr.EXEC<<"\n";
+			p.first.RF2 = instr.RF2;
+			p.first.MEM = instr.MEM;
 			p.first.WB = instr.WB;
 			break;
 		}

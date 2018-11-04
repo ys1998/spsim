@@ -16,5 +16,6 @@
 #include "latch.hpp"
 #include "alu.hpp"
 #include "writer.hpp"
+#include "mem.hpp"
 
 #endif

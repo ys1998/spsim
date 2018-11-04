@@ -22,7 +22,8 @@ protected:
 	int ID;						// unique identifier for each instruction
 	int PC;						// value of PC associated with this instruction
 	int rs, rt, rd;				// logical register mappings
-	int rs_, rt_, rd_;			// physical register mappings
+	int rs_, rt_, rd_;			// physical register mappings	
+	int immediate;			
 	int _rd;					// previous mapping for physical destination register
 	int opcode, funct, shamt;	// instruction type and data fields
 
@@ -30,7 +31,7 @@ protected:
 	// bool is_branch;
 
 public:
-	int IF, DE, RF, EXEC, WB;	// clock values when this instruction entered each stage
+	int IF, DE, RF1, EXEC, RF2,MEM, WB;	// clock values when this instruction entered each stage
 	std::string text;			// instruction in words
 	
 	Instruction();											// default constructor
@@ -46,6 +47,7 @@ public:
 	std::tuple<int, int, int, int> physical_regs(void);		// return the set of physical registers
 	std::tuple<int, int, int> logical_regs(void); 			// return the set of logical registers
 	std::tuple<int, int> type(void);						// return the numbers defining the type of instruction
+	int get_imm(void);                                      // returns the immediate value for the load/store instruction
 };
 
 bool cmp(Instruction, Instruction);
