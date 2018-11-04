@@ -47,11 +47,12 @@ void print_std(Buffer<Instruction> output_order){
 	std::cout << "Space-Time Diagram\n";
 	std::sort(output_order.begin(), output_order.end(), cmp);
 
-	std::string IF = "\033[1;43m  IF  \033[0m";
-	std::string DE = "\033[1;42m  DE  \033[0m";
-	std::string RF = "\033[1;41m  RF  \033[0m";
+	std::string IF =  "\033[1;43m  IF  \033[0m";
+	std::string DE =  "\033[1;42m  DE  \033[0m";
+	std::string RF1 = "\033[1;41m  RF1 \033[0m";
+	std::string RF2 = "\033[1;46m  RF2 \033[0m";
 	std::string EX =  "\033[1;44m EXEC \033[0m";
-	std::string MEM = "\033[1;48m MEM \033[0m";
+	std::string MEM = "\033[1;47;30m  MEM \033[0m";
 	std::string WB =  "\033[1;45m  WB  \033[0m";
 	std::string sp =  "      ";
 
@@ -66,16 +67,16 @@ void print_std(Buffer<Instruction> output_order){
 		std::cout << DE;
 		while(i++ != instr.RF1)
 			std::cout << DE;
-		std::cout << RF;
+		std::cout << RF1;
 		while(i++ != instr.EXEC)
-			std::cout << RF;
+			std::cout << RF1;
 		std::cout << EX;
 		if(std::get<0>(instr.type())== OPCODE["lw"] || std::get<0>(instr.type())== OPCODE["sw"]){
 			while(i++ != instr.RF2)
 				std::cout << EX;
-			std::cout << RF;// << i << instr.MEM;
+			std::cout << RF2;// << i << instr.MEM;
 			while (i++ != instr.MEM)
-				std::cout << RF;
+				std::cout << RF2;
 			std::cout << MEM;
 			while(i++ != instr.WB)
 				std::cout << MEM;

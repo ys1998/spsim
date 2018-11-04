@@ -4,6 +4,7 @@
 */
 
 #include "instruction.hpp"
+#include <math.h>
 
 extern std::map<std::string, int> OPCODE, FUNCT;
 
@@ -65,7 +66,7 @@ Instruction::Instruction(int _PC, std::string instr){
 			case 2:
 			if(opcode==6||opcode==7){
 				iss >> immediate;
-				if(immediate>pow(2,15)||immediate<-pow(2,15))
+				if(immediate>std::pow(2,15)||immediate<-std::pow(2,15))
 				error_msg("parser", "Invalid immediate immediate = " + std::to_string(immediate) + ", line " + std::to_string(_PC));
 				 	
 			}

@@ -8,7 +8,9 @@
 
 extern std::map<std::string, int> FUNCT;
 extern std::map<std::string, int> OPCODE;
+
 using namespace std;
+
 IntegerQueue::IntegerQueue(bool *b){
 	this->b = b;
 }
@@ -138,7 +140,7 @@ std::tuple<Instruction, int ,int> AddressQueue::MEMissue(){
 
 bool AddressQueue::findswaddr(int index){
 	int myaddr = _addr[index];
-	for(size_t i=0; i < _q.size() && i < index; ++i){
+	for(size_t i=0; i < _q.size() && i < (unsigned int)index; ++i){
 		if ((myaddr == _addr[i] && ((std::get<0>(_q[i].type()))) == OPCODE["sw"])){
 			// cout<<_q[i].get_id();
 			return 0;
