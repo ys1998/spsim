@@ -125,8 +125,6 @@ int main(int argc, char const *argv[])
 	int RegisterMapping[NUM_LOG_REGS];
 	bool BusyBitTable[NUM_PHY_REGS]; 
 
-
-
 	Fetcher f(&ICache, &if_de_queue);
 
 	FreeList fl;
@@ -135,7 +133,7 @@ int main(int argc, char const *argv[])
 	AddressQueue aq(&BusyBitTable[0]);
 	IntegerRegisterFile rf;
 
-	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], &iq,&aq);
+	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], &iq, &aq);
 
 	Latch< std::tuple<Instruction, int, int> > in_latch_1, in_latch_2,in_latch_3,in_latch_4;
 
@@ -146,10 +144,10 @@ int main(int argc, char const *argv[])
 	Latch< std::tuple<Instruction, int, int> > out_latch_2;
 
 	ALU2 a2(&in_latch_2, &out_latch_2, &BusyBitTable[0]);
-	ALU3  a3(&in_latch_3, &out_latch_3, &BusyBitTable[0]);
-	MEM   mem(&in_latch_4,&out_latch_4,&DCache[0],&BusyBitTable[0]);
+	ALU3 a3(&in_latch_3, &out_latch_3, &BusyBitTable[0]);
+	MEM  mem(&in_latch_4,&out_latch_4, &DCache[0], &BusyBitTable[0]);
 
-	Writer w(&out_latch_1, &out_latch_2, &al, &rf);
+	Writer w(&out_latch_1, &out_latch_2, &out_latch_4, &al, &rf);
 	Flusher flsh(&is, &f, &d, &w);
 	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &flsh);
 	/**********************************************************************************/
@@ -176,12 +174,13 @@ int main(int argc, char const *argv[])
 	is.attach_latch(2,&in_latch_3,2);
 	is.attach_latch(3,&in_latch_4,3);
 	is.attach_cal_latch_outer(&out_latch_3);
+
 	for(int i=0; i<NUM_LOG_REGS; ++i)
-		RegisterMapping[i] = i;
+		RegisterMapping[i] = -1;
 	for(int i=0; i<NUM_PHY_REGS; ++i)
 		BusyBitTable[i] = false;
 	for(int i=0; i<DCACHE_SIZE;++i)
-		DCache[i] = 0;                    
+		DCache[i] = i;                    
 
 	int t = 30; // CHANGE THIS
 	while(t--){

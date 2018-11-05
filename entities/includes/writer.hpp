@@ -24,7 +24,9 @@ protected:
 	IntegerRegisterFile *rf;								// pointer to integer register file
 public:
 	Writer(	Latch< std::tuple<Instruction, int> >*, 
-			Latch< std::tuple<Instruction, int, int> >*, Latch< std::tuple<Instruction, int> >*,ActiveList*, IntegerRegisterFile*);
+			Latch< std::tuple<Instruction, int, int> >*, 
+			Latch< std::tuple<Instruction, int> >*,
+			ActiveList*, IntegerRegisterFile*);
 	void tick();
 	void tock();
 	void flush(int);

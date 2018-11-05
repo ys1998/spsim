@@ -5,6 +5,7 @@
 #include "decoder.hpp"
 
 extern int CLOCK;
+extern std::map<std::string, int> OPCODE, FUNCT;
 
 Decoder::Decoder(Buffer<Instruction>* d, FreeList *f, ActiveList *a, int *r, bool *b, IntegerQueue *iq,AddressQueue *aq){
 	this->d = d; this->f = f; this->a = a;
@@ -18,7 +19,6 @@ int Decoder::decode_instr(Instruction instr){
 	std::tuple<int,int> instruction_type = instr.type();
 	int opcode = std::get<0>(instruction_type);
 	
-
 	int rs = std::get<0>(reg);
 	int rt = std::get<1>(reg);
 	int rd = std::get<2>(reg);
@@ -50,19 +50,7 @@ int Decoder::decode_instr(Instruction instr){
 	} else {
 		rt_ = *(r + rt);
 	}
-	if(opcode==7){
-		if(*(r + rd) == -1){
-		if((temp = f->find()) == -1)
-			return -1;
-		*(r + rd) = rd_ = temp;
-		f->remove(rd_);
-		found[0] = true;
-		} 
-		else {
-			rd_ = *(r + rd);
-		}	
-	}
-	else{
+	if(opcode == OPCODE["lw"] || opcode == 0){
 		if((temp = f->find()) == -1){
 			if(found[0]) {
 				f->add(rs_);
@@ -79,14 +67,15 @@ int Decoder::decode_instr(Instruction instr){
 	}
 	instr.map(std::make_tuple(rs_, rt_, rd_, *(r + rd)));
 	
-	if(opcode!=7){
+	if(opcode == OPCODE["lw"] || opcode == 0){
 		*(r + rd) = temp;
 		*(b + rd_) = true;
 	}
 	instr.DE = CLOCK;
 	instr.RF1 = CLOCK+1;
 	instr.set_id();
-	if(opcode!=6&&opcode!=7)
+
+	if(!(opcode == OPCODE["lw"] || opcode == OPCODE["sw"]))
 		iq->add(instr); // TODO check return value
 	else
 		aq->add(instr);

@@ -35,6 +35,7 @@ void MEM::tick(){
 					DCache[in1] = in2;
 				else{
 					res = DCache[in1];
+					// cout<<DCache[in1];
 					*(b + std::get<2>(i.physical_regs())) = false;
 				}
 				//*(b + std::get<2>(i.physical_regs())) = false;		
@@ -49,7 +50,6 @@ void MEM::tock(){
 			}else{
 				read = true;
 				out->write(std::make_tuple(i,res));
-
 				Instruction reset; i = reset;
 			}
 		}

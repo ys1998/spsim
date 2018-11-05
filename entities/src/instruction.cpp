@@ -59,7 +59,7 @@ Instruction::Instruction(int _PC, std::string instr){
 			}
 			break;
 			case 1:
-			if(opcode == 0)
+			if(opcode == 0 || opcode == OPCODE["lw"])
 			{
 				iss >> rd;
 				if(rd < 0 || rd >= NUM_LOG_REGS){
@@ -74,7 +74,7 @@ Instruction::Instruction(int _PC, std::string instr){
 			}
 			break;
 			case 2:
-			if(opcode==6||opcode==7){
+			if(opcode == OPCODE["lw"] || opcode == OPCODE["sw"]){
 				iss >> immediate;
 				if(immediate>std::pow(2,15)||immediate<-std::pow(2,15))
 				error_msg("parser", "Invalid immediate immediate = " + std::to_string(immediate) + ", line " + std::to_string(_PC));
@@ -103,7 +103,7 @@ Instruction::Instruction(int _PC, std::string instr){
 					error_msg("parser", "Invalid register rt = " + std::to_string(rt) + ", line " + std::to_string(_PC));
 				}
 			}
-			else
+			else if( opcode == 4 || opcode == 5)
 			{
 				iss >> immediate;
 				if (immediate < 0 || immediate >= 66536)
@@ -111,7 +111,13 @@ Instruction::Instruction(int _PC, std::string instr){
 					error_msg("parser", "Invalid immediate = " + std::to_string(immediate) + ", line " + std::to_string(_PC));
 				}
 			}
-			if(opcode==6||opcode==7)
+			else{
+				iss >> rt;
+				if(rt < 0 || rt >= NUM_LOG_REGS){
+					error_msg("parser", "Invalid register rt = " + std::to_string(rt) + ", line " + std::to_string(_PC));
+				}
+			}
+			if(opcode == OPCODE["lw"])
 				rs=rt;
 			break;
 			default:

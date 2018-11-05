@@ -22,14 +22,13 @@ protected:
 	int ID;						// unique identifier for each instruction
 	int PC;						// value of PC associated with this instruction
 	int rs, rt, rd;				// logical register mappings
-	int rs_, rt_, rd_;			// physical register mappings	
-	int immediate;			
+	int rs_, rt_, rd_;			// physical register mappings			
 	int _rd;					// previous mapping for physical destination register
 	int opcode, funct, shamt;	// instruction type and data fields
 	int immediate;
 
 public:
-	int IF, DE, RF1, EXEC, RF2,MEM, WB;	// clock values when this instruction entered each stage
+	int IF, DE, RF1, EXEC, RF2, MEM, WB;	// clock values when this instruction entered each stage
 	std::string text;			// instruction in words
 	// For branching
 	int predicted, jumpAddressPred;

@@ -43,19 +43,15 @@ void Issuer::tick(void){
 
 	for(int j=0; j < NUM_ALU; ++j){
 		if(ready[j]){
-			// cout<<"INNER LATCH:"<<j<<" ready to be read from";
 			if(j==addrescal_latch){
-				auto temp= aq->ALUissue();				
+				auto temp = aq->ALUissue();				
 				i[j] = std::get<0>(temp);
 					last_index_issued = present_index_issued;
-				present_index_issued=std::get<1>(temp);
-				// cout<<"last_index_issued: "<<last_index_issued <<" present_index_issued: "<<present_index_issued<<"\n";
-				// cout<<"ADDRESSQUEUE: INST_ID: "<< i[j].get_id() <<"\n";
-			}
-			else if(j==memory_latch){
+				present_index_issued = std::get<1>(temp);
+			} else if(j == memory_latch){
 				auto temp=aq->MEMissue();
 				i[j] = std::get<0>(temp);
-				mem_address=std::get<1>(temp);
+				mem_address = std::get<1>(temp);
 				int temp_index = std::get<2>(temp);
 				if(i[j].is_valid()){
 					if(temp_index<=last_index_issued)
@@ -89,19 +85,22 @@ void Issuer::tock(void){
 			auto regs = i[j].physical_regs();
 			// cout<<(std::get<0>(regs))<<" "<<(std::get<1>(regs))<<" "<<(std::get<2>(regs))<<"\n";
 			// i[j].RF = CLOCK;
+			// cout << addrescal_latch << memory_latch << endl;
 			if(j==addrescal_latch){
 				int immediate=i[j].get_imm();
 				// cout<<"Instruction id "<<i[j].get_id()<<" ";
+				// cout << immediate <<endl;
 				l[j]->write(std::make_tuple(i[j], immediate, rf->read(std::get<1>(regs))));
 				// cout<<"CAL_ADDR \n";
-				}
-			if(j==memory_latch){
+			}else if(j==memory_latch){
 				// cout<<"Instruction id "<<i[j].get_id()<<" ";
 				l[j]->write(std::make_tuple(i[j], mem_address, rf->read(std::get<2>(regs))));
 				// cout<<"MEMORY UNIT\n";
-			}
-			else
+			} else{
+				cout << rf->read(std::get<0>(regs)) << rf->read(std::get<1>(regs));
 				l[j]->write(std::make_tuple(i[j], rf->read(std::get<0>(regs)), rf->read(std::get<1>(regs))));
+			}
+			
 			ready[j] = true;
 		}
 			// cout<<"INNER LATCH:"<<j<<"invalid\n";	

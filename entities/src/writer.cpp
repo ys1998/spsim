@@ -59,8 +59,9 @@ void Writer::tock(void){
 		i3.WB = CLOCK;
 		a->graduate(i3);
 		// cout<<i3.EXEC<<endl;
-		if(std::get<0>(i3.type())== OPCODE["lw"])
-			rf->write(std::get<2>(i3.physical_regs()), std::get<1>(t1));
+		if(std::get<0>(i3.type())== OPCODE["lw"]){
+			rf->write(std::get<2>(i3.physical_regs()), std::get<1>(t3));
+		}
 		Instruction reset; t3 = std::make_tuple(reset, 0);
 	}
 }
