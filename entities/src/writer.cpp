@@ -19,23 +19,6 @@ Writer::Writer(	Latch< std::tuple<Instruction, int> >* in1,
 } 
 
 void Writer::tick(void){
-	// if(!in3->valid()){
-	// 	if(in1->valid())
-	// 		t1 = in1->read();
-	// 	if(in2->valid())
-	// 		t2 = in2->read();
-	// }
-	// else{
-	// 	t3 = in3->read();
-	// 	if(in2->valid()){
-	// 		t2 = in2->read();		
-	// 	}
-	// 	else if (in1->valid())
-	// 		t1 = in1->read();
-		
-	// 	else{
-	// 	}
-	// }
 	if(in1->valid()){
 		t1 = in1->read();
 		Instruction i1 = std::get<0>(t1);
@@ -67,7 +50,6 @@ void Writer::tick(void){
 			}
 		}
 	}
-
 }
 
 
@@ -76,14 +58,11 @@ void Writer::tock(void){
 	if(i1.is_valid()){
 		i1.WB = CLOCK;
 		a->graduate(i1);
-		// rf->write(std::get<2>(i1.physical_regs()), std::get<1>(t1));
 		Instruction reset; t1 = std::make_tuple(reset, 0);
 	}
 	if(i2.is_valid()){
 		i2.WB = CLOCK;
 		a->graduate(i2);
-		// rf->write_lo(std::get<1>(t2));		// TODO check instruction type and write to hi/lo or phy_reg
-		// rf->write_hi(std::get<2>(t2));
 		Instruction reset; t2 = std::make_tuple(reset, 0, 0);
 	}
 	if(i3.is_valid()){

@@ -4,7 +4,6 @@
 
 #include "lists.hpp"
 
-#include <iostream>
 #include <string>
 
 FreeList::FreeList(){
@@ -84,22 +83,6 @@ void ActiveList::graduate(Instruction& instr){
 }
 
 void ActiveList::flush(int id){
-	// for(auto& p : _q){
-	// 	if(p.first.get_id() > id){
-	// 		p.second = true;
-	// 		p.first.IF = 0;
-	// 		p.first.DE = 0;
-	// 		p.first.RF = 0;
-	// 		p.first.EXEC = 0;
-	// 		p.first.WB = 0;
-
-	// 		auto regs = p.first.physical_regs();
-	// 		auto log_regs = p.first.logical_regs();
-	// 		f->add(std::get<2>(regs));
-	// 		*(r + std::get<2>(log_regs)) = std::get<3>(regs);
-	// 		*(b + std::get<2>(regs)) = false;
-	// 	}
-	// }
 	size_t i = _q.size() - 1;
 	while(i != 0){
 		if(_q[i].first.get_id() > id){
