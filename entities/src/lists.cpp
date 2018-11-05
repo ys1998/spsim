@@ -4,7 +4,7 @@
 
 #include "lists.hpp"
 
-#include <iostream>
+#include <string>
 
 FreeList::FreeList(){
 	for(int i = 0 ; i < NUM_PHY_REGS ; i++)
@@ -41,8 +41,8 @@ int FreeList::find(){
 	return -1;
 }
 
-ActiveList::ActiveList(FreeList *f, Buffer<Instruction> *o){
-	this->f = f; this->o = o;
+ActiveList::ActiveList(FreeList *f, Buffer<Instruction> *o, int *r, bool *b){
+	this->f = f; this->o = o; this->r = r; this->b = b;
 }
 
 int ActiveList::push(Instruction instr){
@@ -61,8 +61,11 @@ void ActiveList::graduate(Instruction& instr){
 			// update the clock times
 			p.first.IF = instr.IF;
 			p.first.DE = instr.DE;
-			p.first.RF = instr.RF;
+			p.first.RF1 = instr.RF1;
 			p.first.EXEC = instr.EXEC;
+			// cout<<instr.EXEC<<"\n";
+			p.first.RF2 = instr.RF2;
+			p.first.MEM = instr.MEM;
 			p.first.WB = instr.WB;
 			break;
 		}
@@ -76,5 +79,20 @@ void ActiveList::graduate(Instruction& instr){
 		}
 		o->push_back(temp);
 		_q.pop_front();
+	}
+}
+
+void ActiveList::flush(int id){
+	size_t i = _q.size() - 1;
+	while(i != 0){
+		if(_q[i].first.get_id() > id){
+			auto regs = _q[i].first.physical_regs();
+			auto log_regs = _q[i].first.logical_regs();
+			f->add(std::get<2>(regs));
+			*(r + std::get<2>(log_regs)) = std::get<3>(regs);
+			*(b + std::get<2>(regs)) = false;
+			_q.erase(_q.begin() + i);
+		}
+		i--;
 	}
 }

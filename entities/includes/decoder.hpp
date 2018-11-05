@@ -22,14 +22,16 @@ protected:
 	int *r;												// pointer to logical to physical register mapping
 	bool *b;											// pointer to busy bit table for physical registers
 	IntegerQueue *iq;									// pointer to queue that stores decoded instructions
+	AddressQueue *aq;
 	bool decode_signal;									// signal indicating whether to stop decoding or not
 
 	int decode_instr(Instruction);						// function for decoding an instruction; performs register
 														// renaming and mapping of logical to physical registers
 public:
-	Decoder(Buffer<Instruction>*, FreeList*, ActiveList*, int*, bool*, IntegerQueue*);
+	Decoder(Buffer<Instruction>*, FreeList*, ActiveList*, int*, bool*, IntegerQueue*,AddressQueue*);
 	void tick();				
 	void tock();
+	void flush(int);
 };
 
 #endif

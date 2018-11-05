@@ -22,16 +22,16 @@ protected:
 	int ID;						// unique identifier for each instruction
 	int PC;						// value of PC associated with this instruction
 	int rs, rt, rd;				// logical register mappings
-	int rs_, rt_, rd_;			// physical register mappings
+	int rs_, rt_, rd_;			// physical register mappings			
 	int _rd;					// previous mapping for physical destination register
 	int opcode, funct, shamt;	// instruction type and data fields
-
-	// other control fields
-	// bool is_branch;
+	int immediate;
 
 public:
-	int IF, DE, RF, EXEC, WB;	// clock values when this instruction entered each stage
+	int IF, DE, RF1, EXEC, RF2, MEM, WB;	// clock values when this instruction entered each stage
 	std::string text;			// instruction in words
+	// For branching
+	int predicted, jumpAddressPred;
 	
 	Instruction();											// default constructor
 	Instruction(int, std::string);							// construct instruction from string
@@ -42,6 +42,8 @@ public:
 		ID = cnt++;
 	}
 	int get_id(void){ return ID; }							// return instruction's identifier
+	int get_pc(void){ return PC; }
+	int get_immediate(void){ return immediate; }			// returns the immediate value
 	void map(std::tuple<int, int, int, int>);				// map logical registers to given physical registers
 	std::tuple<int, int, int, int> physical_regs(void);		// return the set of physical registers
 	std::tuple<int, int, int> logical_regs(void); 			// return the set of logical registers

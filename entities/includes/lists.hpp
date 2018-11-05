@@ -28,11 +28,14 @@ protected:
 	Buffer< std::pair<Instruction, bool> > _q;					// stores instructions and their completion status
 	Buffer<Instruction> *o;										// pointer to buffer containing finished instructions
 	FreeList *f;												// pointer to free list of physical registers
+	int *r;
+	bool *b;
 public:
-	ActiveList(FreeList*, Buffer<Instruction>*);				// instantiate active list with given pointers
+	ActiveList(FreeList*, Buffer<Instruction>*, int*, bool*);	// instantiate active list with given pointers
 	int push(Instruction);										// push an instruction if list isn't full
 	void graduate(Instruction&);								// mark given instruction as completed and remove 
 																// consecutive graduated instructions from front
+	void flush(int);
 };
 
 #endif
