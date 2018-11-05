@@ -4,13 +4,15 @@
 
 #include "alu.hpp"
 
+#include <iostream>
 extern std::map<std::string, int> OPCODE, FUNCT;
 extern int CLOCK;
 
 ALU1::ALU1(	Latch< std::tuple<Instruction, int, int> >* in, 
 			Latch< std::tuple<Instruction, int> >* out, bool* b,
-			ALU2 *a, Flusher *f){
+			ALU2 *a, Flusher *f, int* p, int* pa){
 	this->in = in; this->out = out; this->b = b; this->a = a; this->f = f;
+	this->predict = p; this->predict_addr = pa;
 	// store latencies of operations
 	latencies[FUNCT["add"]] = LATENCY_ADD;
 	latencies[FUNCT["sub"]] = LATENCY_SUB;
@@ -33,16 +35,34 @@ void ALU1::operate(void){
 				res = (in1 == in2);
 			}else if(opcode == OPCODE["bne"]){
 				res = (in1 != in2);
+				std::cout << "res " << res <<"\n";
 			}
+			// Branch prediction update
 			int possible_jump_address = i.get_pc() + 1 + i.get_immediate();
-			/* PREDICTOR UPDATE FUNCTION */
+			*(predict_addr + i.get_pc() % BRANCH_PREDICT_SLOTS) = possible_jump_address;
+			
+			if(res == 1){
+				std::cout << "res : in if(1)"<<"\n";
+				*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) += 1;
+				if(*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) == STRONGLY_TAKEN + 1)
+					*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) = STRONGLY_TAKEN;
+			}else{
+				std::cout << "res : in if(0)"<<"\n";
+				*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) -= 1;
+				if(*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) == STRONGLY_NOT_TAKEN - 1)
+					*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) = STRONGLY_NOT_TAKEN;
+			}
+			
 			if (res != i.predicted || ((res == 1) && (possible_jump_address != i.jumpAddressPred))){
+				std::cout << "res : in misprediction"<<"\n";
 				//	case of misprediction
 				if(res == 0) possible_jump_address = i.get_pc()+1;
 				// flush second ALU
 				a->flush(i.get_id());
 				// flush other entities
 				f->flush(i.get_id(), possible_jump_address);
+				std::cout << "res : in misprediction compl"<< std::endl;
+				
 			}
 				
 		}	

@@ -29,7 +29,7 @@ protected:
 
 public:
 	int IF, DE, RF1, EXEC, RF2, MEM, WB;	// clock values when this instruction entered each stage
-	std::string text;			// instruction in words
+	std::string text;						// instruction in words
 	// For branching
 	int predicted, jumpAddressPred;
 	

@@ -36,7 +36,7 @@ Instruction::Instruction(){
 Instruction::Instruction(int _PC, std::string instr){
 	ID = -1;
 	PC = _PC;
-	_rd = -1;
+	_rd = -1; rd_ = -1;
 	IF = DE = RF1 = EXEC = RF2= MEM= WB = -1;
 	shamt = 0;
 	text = instr;
@@ -104,7 +104,7 @@ Instruction::Instruction(int _PC, std::string instr){
 			else if( opcode == OPCODE["beq"] || opcode == OPCODE["bne"])
 			{
 				iss >> immediate;
-				if (immediate < 0 || immediate >= 66536)
+				if (immediate < -32768 || immediate >= 32768)
 				{
 					error_msg("parser", "Invalid immediate = " + std::to_string(immediate) + ", line " + std::to_string(_PC));
 				}

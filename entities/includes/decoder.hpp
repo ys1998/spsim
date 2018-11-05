@@ -10,6 +10,7 @@
 #include "instruction.hpp"
 #include "lists.hpp"
 #include "queues.hpp"
+#include "fetcher.hpp"
 
 #include <tuple>
 
@@ -27,11 +28,16 @@ protected:
 
 	int decode_instr(Instruction);						// function for decoding an instruction; performs register
 														// renaming and mapping of logical to physical registers
+	int *predict;
+	int *predict_addr;
+	Fetcher *ft;
 public:
-	Decoder(Buffer<Instruction>*, FreeList*, ActiveList*, int*, bool*, IntegerQueue*,AddressQueue*);
+	Decoder(Buffer<Instruction>*, FreeList*, ActiveList*, int*, 
+			bool*, IntegerQueue*, AddressQueue*, int*, int*, Fetcher*);
 	void tick();				
 	void tock();
 	void flush(int);
+	std::tuple<int, int> predict_branch(int);
 };
 
 #endif

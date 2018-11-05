@@ -26,7 +26,7 @@ Instruction IntegerQueue::issue(int idx){
 		for(size_t i=0; i < _q.size(); ++i){
 			Instruction temp = _q[i];
 			auto type = temp.type();
-			if(temp.is_valid() && (std::get<0>(type) == OPCODE["beq"] || std::get<0>(type) == OPCODE["beq"])){
+			if(temp.is_valid() && (std::get<0>(type) == OPCODE["beq"] || std::get<0>(type) == OPCODE["bne"])){
 				auto regs = temp.physical_regs();
 				if(!*(b + std::get<0>(regs)) && !*(b + std::get<1>(regs))){
 					_q.erase(_q.begin() + i);

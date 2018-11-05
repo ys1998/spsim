@@ -46,9 +46,13 @@ protected:
 	bool *b;											// pointer to busy bit table
 	ALU2 *a;
 	Flusher *f;
+	int *predict;
+	int *predict_addr;
 	void operate();										// function to perform the specified operation
 public:
-	ALU1(Latch< std::tuple<Instruction, int, int> >*, Latch< std::tuple<Instruction, int> >*, bool*, ALU2*, Flusher*);
+	ALU1(Latch< std::tuple<Instruction, int, int> >*, 
+		 Latch< std::tuple<Instruction, int> >*, bool*, 
+		 ALU2*, Flusher*, int*, int*);
 	void tick();
 	void tock();
 };
