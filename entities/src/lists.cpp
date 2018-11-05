@@ -42,8 +42,8 @@ int FreeList::find(){
 	return -1;
 }
 
-ActiveList::ActiveList(FreeList *f, Buffer<Instruction> *o){
-	this->f = f; this->o = o;
+ActiveList::ActiveList(FreeList *f, Buffer<Instruction> *o, int *r, bool *b){
+	this->f = f; this->o = o; this->r = r; this->b = b;
 }
 
 int ActiveList::push(Instruction instr){
@@ -81,14 +81,33 @@ void ActiveList::graduate(Instruction& instr){
 }
 
 void ActiveList::flush(int id){
-	for(auto& p : _q){
-		if(p.first.get_id() > id){
-			p.second = true;
-			p.first.IF = 0;
-			p.first.DE = 0;
-			p.first.RF = 0;
-			p.first.EXEC = 0;
-			p.first.WB = 0;
+	// for(auto& p : _q){
+	// 	if(p.first.get_id() > id){
+	// 		p.second = true;
+	// 		p.first.IF = 0;
+	// 		p.first.DE = 0;
+	// 		p.first.RF = 0;
+	// 		p.first.EXEC = 0;
+	// 		p.first.WB = 0;
+
+	// 		auto regs = p.first.physical_regs();
+	// 		auto log_regs = p.first.logical_regs();
+	// 		f->add(std::get<2>(regs));
+	// 		*(r + std::get<2>(log_regs)) = std::get<3>(regs);
+	// 		*(b + std::get<2>(regs)) = false;
+	// 	}
+	// }
+	size_t i = 0;
+	while(i < _q.size()){
+		if(_q[i].first.get_id() > id){
+			auto regs = _q[i].first.physical_regs();
+			auto log_regs = _q[i].first.logical_regs();
+			f->add(std::get<2>(regs));
+			*(r + std::get<2>(log_regs)) = std::get<3>(regs);
+			*(b + std::get<2>(regs)) = false;
+			_q.erase(_q.begin() + i);
+		}else{	
+			i++;
 		}
 	}
 }

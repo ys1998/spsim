@@ -58,25 +58,23 @@ void print_std(Buffer<Instruction> output_order){
 
 	for(auto instr : output_order){
 		int i = 1;
-		if(instr.IF > 0){
-			std::cout << instr.text << "\t";
-			while(i < instr.WB && i++ != instr.IF)
-				std::cout << sp;
+		std::cout << instr.text << "\t";
+		while(i < instr.WB && i++ != instr.IF)
+			std::cout << sp;
+		std::cout << IF;
+		while(i < instr.WB && i++ != instr.DE)
 			std::cout << IF;
-			while(i < instr.WB && i++ != instr.DE)
-				std::cout << IF;
+		std::cout << DE;
+		while(i < instr.WB && i++ != instr.RF)
 			std::cout << DE;
-			while(i < instr.WB && i++ != instr.RF)
-				std::cout << DE;
+		std::cout << RF;
+		while(i < instr.WB && i++ != instr.EXEC)
 			std::cout << RF;
-			while(i < instr.WB && i++ != instr.EXEC)
-				std::cout << RF;
+		std::cout << EX;
+		while(i < instr.WB && i++ != instr.WB)
 			std::cout << EX;
-			while(i < instr.WB && i++ != instr.WB)
-				std::cout << EX;
-			std::cout << WB;
-			std::cout << std::endl;
-		}
+		std::cout << WB;
+		std::cout << std::endl;
 	}
 }
 
@@ -112,7 +110,7 @@ int main(int argc, char const *argv[])
 	Fetcher f(&ICache, &if_de_queue);
 
 	FreeList fl;
-	ActiveList al(&fl, &output_order);
+	ActiveList al(&fl, &output_order, &RegisterMapping[0], &BusyBitTable[0]);
 	IntegerQueue iq(&BusyBitTable[0]);
 	IntegerRegisterFile rf;
 
@@ -152,7 +150,7 @@ int main(int argc, char const *argv[])
 	is.attach_latch(0, &in_latch_1);
 	is.attach_latch(1, &in_latch_2);
 	for(int i=0; i<NUM_LOG_REGS; ++i)
-		RegisterMapping[i] = -1;
+		RegisterMapping[i] = i;
 	for(int i=0; i<NUM_PHY_REGS; ++i)
 		BusyBitTable[i] = false;
 
