@@ -112,3 +112,15 @@ void Decoder::tock(void){
 		}
 	}
 }
+
+void Decoder::flush(int id){
+	// clean eveerything, no check needed
+	_q.clear();
+	d->clear();
+	// std::cout << "AFTER FLUSH THE PIPE IS \n";
+	// for(size_t i=0; i < _q.size(); ++i){
+	// 		Instruction temp = _q[i] ;
+	// 		std::cout << temp.text << "\n";
+	// }
+	a->flush(id);
+}

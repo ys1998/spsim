@@ -64,3 +64,7 @@ void Writer::tock(void){
 		Instruction reset; t3 = std::make_tuple(reset, 0);
 	}
 }
+
+void Writer::flush(int id){
+	// TODO
+}

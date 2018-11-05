@@ -41,6 +41,7 @@ Instruction::Instruction(int _PC, std::string instr){
 	IF = DE = RF1 = EXEC = RF2= MEM= WB = -1;
 	shamt = 0;
 	text = instr;
+	predicted = jumpAddressPred = 55;
 	// is_branch = false;
 
 	std::istringstream iss(instr);
@@ -58,9 +59,18 @@ Instruction::Instruction(int _PC, std::string instr){
 			}
 			break;
 			case 1:
-			iss >> rd;
-			if(rd < 0 || rd >= NUM_LOG_REGS){
-				error_msg("parser", "Invalid register rd = " + std::to_string(rd) + ", line " + std::to_string(_PC));
+			if(opcode == 0)
+			{
+				iss >> rd;
+				if(rd < 0 || rd >= NUM_LOG_REGS){
+					error_msg("parser", "Invalid register rd = " + std::to_string(rd) + ", line " + std::to_string(_PC));
+				}
+			}
+			else{
+				iss >> rs;
+				if(rs < 0 || rs >= NUM_LOG_REGS){
+					error_msg("parser", "Invalid register rd = " + std::to_string(rs) + ", line " + std::to_string(_PC));
+				}
 			}
 			break;
 			case 2:
@@ -69,18 +79,37 @@ Instruction::Instruction(int _PC, std::string instr){
 				if(immediate>std::pow(2,15)||immediate<-std::pow(2,15))
 				error_msg("parser", "Invalid immediate immediate = " + std::to_string(immediate) + ", line " + std::to_string(_PC));
 				 	
+			}else if(opcode == 0)
+			{
+				iss >> rs;
+				if(rs < 0 || rs >= NUM_LOG_REGS){
+					error_msg("parser", "Invalid register rs = " + std::to_string(rs) + ", line " + std::to_string(_PC));
+				}
 			}
 			else
-			{	iss >> rs;
-			if(rs < 0 || rs >= NUM_LOG_REGS){
-				error_msg("parser", "Invalid register rs = " + std::to_string(rs) + ", line " + std::to_string(_PC));
+			{
+				iss >> rt;
+				if(rt < 0 || rt >= NUM_LOG_REGS){
+					error_msg("parser", "Invalid register rt = " + std::to_string(rt) + ", line " + std::to_string(_PC));
 				}
 			}
 			break;
+			
 			case 3:
-			iss >> rt;
-			if(rt < 0 || rt >= NUM_LOG_REGS){
-				error_msg("parser", "Invalid register rt = " + std::to_string(rt) + ", line " + std::to_string(_PC));
+			if(opcode == 0)
+			{
+				iss >> rt;
+				if(rt < 0 || rt >= NUM_LOG_REGS){
+					error_msg("parser", "Invalid register rt = " + std::to_string(rt) + ", line " + std::to_string(_PC));
+				}
+			}
+			else
+			{
+				iss >> immediate;
+				if (immediate < 0 || immediate >= 66536)
+				{
+					error_msg("parser", "Invalid immediate = " + std::to_string(immediate) + ", line " + std::to_string(_PC));
+				}
 			}
 			if(opcode==6||opcode==7)
 				rs=rt;

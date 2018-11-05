@@ -6,6 +6,8 @@
 #include "logging.hpp"
 #include "entities.hpp"
 #include "issuer.hpp"
+#include "flusher.hpp"
+
 
 #include <fstream>
 #include <string>
@@ -59,10 +61,10 @@ void print_std(Buffer<Instruction> output_order){
 	for(auto instr : output_order){
 		int i = 1;
 		std::cout << instr.text << "\t";
-		while(i++ != instr.IF)
+		while(i < instr.WB && i++ != instr.IF)
 			std::cout << sp;
 		std::cout << IF;
-		while(i++ != instr.DE)
+		while(i < instr.WB && i++ != instr.DE)
 			std::cout << IF;
 		std::cout << DE;
 		while(i++ != instr.RF1)
@@ -128,7 +130,7 @@ int main(int argc, char const *argv[])
 	Fetcher f(&ICache, &if_de_queue);
 
 	FreeList fl;
-	ActiveList al(&fl, &output_order);
+	ActiveList al(&fl, &output_order, &RegisterMapping[0], &BusyBitTable[0]);
 	IntegerQueue iq(&BusyBitTable[0]);
 	AddressQueue aq(&BusyBitTable[0]);
 	IntegerRegisterFile rf;
@@ -143,13 +145,13 @@ int main(int argc, char const *argv[])
 	Latch< std::tuple<Instruction, int> > out_latch_1,out_latch_3,out_latch_4;
 	Latch< std::tuple<Instruction, int, int> > out_latch_2;
 
-	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0]);
 	ALU2 a2(&in_latch_2, &out_latch_2, &BusyBitTable[0]);
 	ALU3  a3(&in_latch_3, &out_latch_3, &BusyBitTable[0]);
 	MEM   mem(&in_latch_4,&out_latch_4,&DCache[0],&BusyBitTable[0]);
 
-	Writer w(&out_latch_1, &out_latch_2,&out_latch_4,&al, &rf);
-
+	Writer w(&out_latch_1, &out_latch_2, &al, &rf);
+	Flusher flsh(&is, &f, &d, &w);
+	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &flsh);
 	/**********************************************************************************/
 
 	int PC = 0;
@@ -175,13 +177,13 @@ int main(int argc, char const *argv[])
 	is.attach_latch(3,&in_latch_4,3);
 	is.attach_cal_latch_outer(&out_latch_3);
 	for(int i=0; i<NUM_LOG_REGS; ++i)
-		RegisterMapping[i] = -1;
+		RegisterMapping[i] = i;
 	for(int i=0; i<NUM_PHY_REGS; ++i)
 		BusyBitTable[i] = false;
 	for(int i=0; i<DCACHE_SIZE;++i)
 		DCache[i] = 0;                    
 
-	int t = 20; // CHANGE THIS
+	int t = 30; // CHANGE THIS
 	while(t--){
 		CLOCK++;
 		f.tick();

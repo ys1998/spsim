@@ -31,6 +31,7 @@ public:
 	Decoder(Buffer<Instruction>*, FreeList*, ActiveList*, int*, bool*, IntegerQueue*,AddressQueue*);
 	void tick();				
 	void tock();
+	void flush(int);
 };
 
 #endif

@@ -32,6 +32,7 @@ public:
 	// outer_latch_ready = true;		
 	void tick();		
 	void tock();
+	void flush(int);
 };
 
 #endif
