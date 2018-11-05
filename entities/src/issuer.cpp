@@ -78,34 +78,20 @@ void Issuer::tick(void){
 
 
 void Issuer::tock(void){
-	// cout<<"ISSUE TOCK: \n"; 
 	for(int j=0; j < NUM_ALU; ++j){
 		if(!l[j]->valid() && i[j].is_valid()){		// write only when previous data has been read
-			// cout<< "INNER LATCH: " <<j<<" READY TO WRITE ";
 			auto regs = i[j].physical_regs();
-			// cout<<(std::get<0>(regs))<<" "<<(std::get<1>(regs))<<" "<<(std::get<2>(regs))<<"\n";
-			// i[j].RF = CLOCK;
-			// cout << addrescal_latch << memory_latch << endl;
-			if(j==addrescal_latch){
+			if(j == addrescal_latch){
 				int immediate=i[j].get_imm();
-				// cout<<"Instruction id "<<i[j].get_id()<<" ";
-				// cout << immediate <<endl;
 				l[j]->write(std::make_tuple(i[j], immediate, rf->read(std::get<1>(regs))));
-				// cout<<"CAL_ADDR \n";
-			}else if(j==memory_latch){
-				// cout<<"Instruction id "<<i[j].get_id()<<" ";
+			}else if(j == memory_latch){
 				l[j]->write(std::make_tuple(i[j], mem_address, rf->read(std::get<2>(regs))));
-				// cout<<"MEMORY UNIT\n";
-			} else{
-				cout << rf->read(std::get<0>(regs)) << rf->read(std::get<1>(regs));
+			}else{
 				l[j]->write(std::make_tuple(i[j], rf->read(std::get<0>(regs)), rf->read(std::get<1>(regs))));
 			}
-			
 			ready[j] = true;
 		}
-			// cout<<"INNER LATCH:"<<j<<"invalid\n";	
 	}
-	// cout<<"\n";
 }
 
 void Issuer::flush(int id){

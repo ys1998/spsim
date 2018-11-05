@@ -100,8 +100,8 @@ void ActiveList::flush(int id){
 	// 		*(b + std::get<2>(regs)) = false;
 	// 	}
 	// }
-	size_t i = 0;
-	while(i < _q.size()){
+	size_t i = _q.size() - 1;
+	while(i != 0){
 		if(_q[i].first.get_id() > id){
 			auto regs = _q[i].first.physical_regs();
 			auto log_regs = _q[i].first.logical_regs();
@@ -109,8 +109,7 @@ void ActiveList::flush(int id){
 			*(r + std::get<2>(log_regs)) = std::get<3>(regs);
 			*(b + std::get<2>(regs)) = false;
 			_q.erase(_q.begin() + i);
-		}else{	
-			i++;
 		}
+		i--;
 	}
 }

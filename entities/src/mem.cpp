@@ -36,7 +36,7 @@ void MEM::tick(){
 				else{
 					res = DCache[in1];
 					// cout<<DCache[in1];
-					*(b + std::get<2>(i.physical_regs())) = false;
+					// *(b + std::get<2>(i.physical_regs())) = false;
 				}
 				//*(b + std::get<2>(i.physical_regs())) = false;		
 			}

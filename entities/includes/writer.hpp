@@ -22,11 +22,12 @@ protected:
 	Latch< std::tuple<Instruction, int, int> >* in2;		// pointer to latch 2
 	ActiveList *a;											// pointer to list of active instructions
 	IntegerRegisterFile *rf;								// pointer to integer register file
+	bool *b;
 public:
 	Writer(	Latch< std::tuple<Instruction, int> >*, 
 			Latch< std::tuple<Instruction, int, int> >*, 
 			Latch< std::tuple<Instruction, int> >*,
-			ActiveList*, IntegerRegisterFile*);
+			ActiveList*, IntegerRegisterFile*, bool*);
 	void tick();
 	void tock();
 	void flush(int);

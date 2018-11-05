@@ -147,7 +147,7 @@ int main(int argc, char const *argv[])
 	ALU3 a3(&in_latch_3, &out_latch_3, &BusyBitTable[0]);
 	MEM  mem(&in_latch_4,&out_latch_4, &DCache[0], &BusyBitTable[0]);
 
-	Writer w(&out_latch_1, &out_latch_2, &out_latch_4, &al, &rf);
+	Writer w(&out_latch_1, &out_latch_2, &out_latch_4, &al, &rf, &BusyBitTable[0]);
 	Flusher flsh(&is, &f, &d, &w);
 	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &flsh);
 	/**********************************************************************************/
