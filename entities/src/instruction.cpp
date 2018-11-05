@@ -16,6 +16,7 @@ void initialize_ISA(void){
 	OPCODE["lw"] = 6;
 	OPCODE["sw"] = 7;
 
+
 	FUNCT["add"] = 32;
 	FUNCT["sub"] = 34;
 	FUNCT["mult"] = 24;
@@ -41,6 +42,7 @@ Instruction::Instruction(int _PC, std::string instr){
 	shamt = 0;
 	text = instr;
 	predicted = jumpAddressPred = 55;
+	// is_branch = false;
 
 	std::istringstream iss(instr);
 	std::string op;
@@ -101,7 +103,7 @@ Instruction::Instruction(int _PC, std::string instr){
 					error_msg("parser", "Invalid register rt = " + std::to_string(rt) + ", line " + std::to_string(_PC));
 				}
 			}
-			else if( opcode == OPCODE["beq"] || opcode == OPCODE["bne"])
+			else if( opcode == 4 || opcode == 5)
 			{
 				iss >> immediate;
 				if (immediate < 0 || immediate >= 66536)
@@ -116,7 +118,7 @@ Instruction::Instruction(int _PC, std::string instr){
 				}
 			}
 			if(opcode == OPCODE["lw"])
-				rs = rt;
+				rs=rt;
 			break;
 			default:
 			iss >> extra;
@@ -130,7 +132,10 @@ void Instruction::map(std::tuple<int, int, int, int> t){
 	rt_ = std::get<1>(t);
 	rd_ = std::get<2>(t);
 	_rd = std::get<3>(t);
+	// if(opcode!=6&&opcode!=7)
 	rs_ = std::get<0>(t);
+	// else
+		// rs_=rt_;
 }
 
 std::tuple<int, int, int, int> Instruction::physical_regs(void){
@@ -138,7 +143,14 @@ std::tuple<int, int, int, int> Instruction::physical_regs(void){
 }
 
 std::tuple<int, int, int> Instruction::logical_regs(void){
-	return std::make_tuple(rs, rt, rd);	
+	// if(opcode!=6&&opcode!=7)
+		return std::make_tuple(rs, rt, rd);
+	// else
+		// return std::make_tuple(immediate, rt, rd);
+}
+
+int Instruction::get_imm(void){
+	return immediate;
 }
 
 std::tuple<int, int> Instruction::type(void){
