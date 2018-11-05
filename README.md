@@ -12,6 +12,8 @@ This repository contatins the code of our course project for Computer Architectu
 
 <img align="center" src="images/spsim_trial.png" alt="Trial simulation">
 <img align="center" src="images/spsim_trial2.png" alt="Multi-cycle EXEC stage">
+<img align="center" src="images/exp.png" alt="Multi-cycle Branch prediction stages">
+
 
 ## Team
 ### Name
