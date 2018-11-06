@@ -99,7 +99,7 @@ void print_std(Buffer<Instruction> output_order){
 
 int main(int argc, char const *argv[])
 {	
-    if(argc <= 1) {
+	if(argc <= 1) {
 		error_msg("main", "Program needed for execution");
 	}
 	if(argc == 3){
