@@ -18,7 +18,7 @@ class Writer : public ClockedEntity {
 protected:
 	std::tuple<Instruction, int> t1,t3;						// read value of latch 1
 	std::tuple<Instruction, int, int> t2;					// read value of latch 2
-	Latch< std::tuple<Instruction, int> >* in1,*in3;		// pointer to latch 1
+	Latch< std::tuple<Instruction, int> >* in1,*in3;				// pointer to latch 1
 	Latch< std::tuple<Instruction, int, int> >* in2;		// pointer to latch 2
 	ActiveList *a;											// pointer to list of active instructions
 	IntegerRegisterFile *rf;								// pointer to integer register file
@@ -30,7 +30,7 @@ public:
 			ActiveList*, IntegerRegisterFile*, bool*);
 	void tick();
 	void tock();
-	void flush(int);
+	// void flush(int);
 };
 
 #endif

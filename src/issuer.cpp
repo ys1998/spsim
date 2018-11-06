@@ -5,6 +5,7 @@
 #include "issuer.hpp"
 
 extern int CLOCK;
+using namespace std;
 
 Issuer::Issuer(IntegerQueue *iq, AddressQueue *aq, IntegerRegisterFile *rf){
 	this->iq = iq; this->rf = rf;
@@ -15,12 +16,12 @@ void Issuer::attach_latch(int idx, Latch< std::tuple<Instruction, int, int> > *l
 	this->l[idx] = l;
 	ready[idx] = true;
 	if(type == 2)
-		addrescal_latch = idx;
+		addrescal_latch =idx;
 	if(type == 3)
 		memory_latch = idx;
 }
 void Issuer::attach_cal_latch_outer(Latch< std::tuple<Instruction, int> > *l){
-	this->outer_latch = l;	
+	this->outer_latch = l;		
 }
 
 void Issuer::tick(void){
@@ -37,7 +38,7 @@ void Issuer::tick(void){
 			if(j == addrescal_latch){
 				auto temp = aq->ALUissue();				
 				i[j] = std::get<0>(temp);
-					last_index_issued = present_index_issued;
+				last_index_issued = present_index_issued;
 				present_index_issued = std::get<1>(temp);
 			}else if(j == memory_latch){
 				auto temp = aq->MEMissue();
@@ -46,9 +47,9 @@ void Issuer::tick(void){
 				int temp_index = std::get<2>(temp);
 				if(i[j].is_valid()){
 					if(temp_index <= last_index_issued)
-					--last_index_issued;
+						--last_index_issued;
 					if(temp_index <= present_index_issued)
-					--present_index_issued;
+						--present_index_issued;
 				}
 			}else{
 				i[j] = iq->issue(j);
@@ -69,7 +70,7 @@ void Issuer::tock(void){
 				int immediate = i[j].get_immediate();
 				l[j]->write(std::make_tuple(i[j], immediate, rf->read(std::get<1>(regs))));
 			}else if(j == memory_latch){
-				l[j]->write(std::make_tuple(i[j], mem_address, rf->read(std::get<2>(regs))));
+				l[j]->write(std::make_tuple(i[j], mem_address, rf->read(std::get<0>(regs))));
 			}else{
 				l[j]->write(std::make_tuple(i[j], rf->read(std::get<0>(regs)), rf->read(std::get<1>(regs))));
 			}

@@ -3,13 +3,14 @@
 */
 
 #include "mem.hpp"
-using namespace std;
+
 extern std::map<std::string, int> OPCODE, FUNCT;
 extern int CLOCK;
 
 
 MEM::MEM(Latch< std::tuple<Instruction, int, int> >* in, Latch< std::tuple<Instruction, int> >* out, int* DCache, bool *b){
-	this->in = in; this->out = out; this->DCache = DCache; this->b = b;
+	this->in = in; this->out = out;	this->DCache = DCache;
+	this->b = b;
 	read = true;
 }
 
@@ -25,7 +26,7 @@ void MEM::tick(){
 				DCache[in1] = in2;
 			else{
 				res = DCache[in1];
-			}		
+			}
 		}
 	}
 }

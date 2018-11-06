@@ -16,6 +16,7 @@ void initialize_ISA(void){
 	OPCODE["lw"] = 6;
 	OPCODE["sw"] = 7;
 
+
 	FUNCT["add"] = 32;
 	FUNCT["sub"] = 34;
 	FUNCT["mult"] = 24;
@@ -36,7 +37,7 @@ Instruction::Instruction(){
 Instruction::Instruction(int _PC, std::string instr){
 	ID = -1;
 	PC = _PC;
-	_rd = -1;
+	_rd = -1; rd_ = -1;
 	IF = DE = RF1 = EXEC = RF2= MEM= WB = -1;
 	shamt = 0;
 	text = instr;
@@ -104,7 +105,7 @@ Instruction::Instruction(int _PC, std::string instr){
 			else if( opcode == OPCODE["beq"] || opcode == OPCODE["bne"])
 			{
 				iss >> immediate;
-				if (immediate < 0 || immediate >= 66536)
+				if (immediate < -32768 || immediate >= 32768)
 				{
 					error_msg("parser", "Invalid immediate = " + std::to_string(immediate) + ", line " + std::to_string(_PC));
 				}
@@ -116,7 +117,7 @@ Instruction::Instruction(int _PC, std::string instr){
 				}
 			}
 			if(opcode == OPCODE["lw"])
-				rs = rt;
+				rs=rt;
 			break;
 			default:
 			iss >> extra;
@@ -138,13 +139,9 @@ std::tuple<int, int, int, int> Instruction::physical_regs(void){
 }
 
 std::tuple<int, int, int> Instruction::logical_regs(void){
-	return std::make_tuple(rs, rt, rd);	
+	return std::make_tuple(rs, rt, rd);
 }
 
 std::tuple<int, int> Instruction::type(void){
 	return std::make_tuple(opcode, funct);
-}
-
-bool cmp(Instruction I1, Instruction I2){
-    return I1.IF < I2.IF ;
 }

@@ -7,10 +7,13 @@
 extern int CLOCK;
 extern std::map<std::string, int> OPCODE, FUNCT;
 
-Decoder::Decoder(Buffer<Instruction>* d, FreeList *f, ActiveList *a, int *r, bool *b, IntegerQueue *iq,AddressQueue *aq){
+Decoder::Decoder(Buffer<Instruction>* d, FreeList *f, ActiveList *a, int *r, 
+				bool *b, IntegerQueue *iq, AddressQueue *aq, int *p, int *pa,
+				Fetcher *ft){
 	this->d = d; this->f = f; this->a = a;
 	this->r = r; this->b = b; this->iq = iq;
-	this->aq = aq;
+	this->aq = aq; this->predict = p; this->predict_addr = pa;
+	this->ft = ft;
 	decode_signal = true;
 }
 
@@ -24,6 +27,7 @@ int Decoder::decode_instr(Instruction instr){
 	int rd = std::get<2>(reg);
 	
 	int temp, rs_, rt_, rd_;
+	temp = rs_ = rt_ = rd_ = -1;
 	bool found[3] = {false, false, false};
 
 	if(*(r + rs) == -1){
@@ -41,7 +45,6 @@ int Decoder::decode_instr(Instruction instr){
 				f->add(rs_);
 				*(r + rs) = -1;	
 			} 	// add already removed register
-
 			return -1;
 		}
 		*(r + rt) = rt_ = temp;
@@ -71,8 +74,20 @@ int Decoder::decode_instr(Instruction instr){
 		*(r + rd) = temp;
 		*(b + rd_) = true;
 	}
+
+	int ret = 0;
+	if(opcode == OPCODE["beq"] || opcode == OPCODE["bne"]){
+		auto pr = predict_branch(instr.get_pc());
+		instr.predicted = std::get<0>(pr);
+		instr.jumpAddressPred = std::get<1>(pr);
+		if(instr.predicted){
+			ret = 1;
+			ft->update_PC(instr.jumpAddressPred);
+		}
+	}
+
 	instr.DE = CLOCK;
-	instr.RF1 = CLOCK+1;
+	instr.RF1 = CLOCK + 1;
 	instr.set_id();
 
 	if(!(opcode == OPCODE["lw"] || opcode == OPCODE["sw"]))
@@ -80,7 +95,8 @@ int Decoder::decode_instr(Instruction instr){
 	else
 		aq->add(instr);
 	a->push(instr); // TODO check return value
-	return 0;
+	
+	return ret;
 }
 
 void Decoder::tick(void){
@@ -93,11 +109,15 @@ void Decoder::tock(void){
 	int cnt = 0;
 	size_t i = 0; 
 	while(!_q.empty() && cnt < INSTR_DECODED_PER_CYCLE && i < _q.size()){
-		if(decode_instr(_q[i]) < 0){
+		int ret = decode_instr(_q[i]);
+		if(ret < 0){
 			++i;
-		}else{
+		}else if(ret == 0){
 			_q.erase(_q.begin() + i);
 			cnt++;
+		}else{
+			_q.clear();
+			d->clear();
 		}
 	}
 }
@@ -107,4 +127,11 @@ void Decoder::flush(int id){
 	_q.clear();
 	d->clear();
 	a->flush(id);
+}
+
+std::tuple<int, int> Decoder::predict_branch(int PC){
+	return std::make_tuple(
+				*(predict + PC % BRANCH_PREDICT_SLOTS) / 2, 
+				*(predict_addr + PC % BRANCH_PREDICT_SLOTS)
+			);
 }

@@ -4,7 +4,10 @@
 
 #include "queues.hpp"
 
-extern std::map<std::string, int> OPCODE, FUNCT;
+extern std::map<std::string, int> FUNCT;
+extern std::map<std::string, int> OPCODE;
+
+using namespace std;
 
 IntegerQueue::IntegerQueue(bool *b){
 	this->b = b;
@@ -26,7 +29,7 @@ Instruction IntegerQueue::issue(int idx){
 		for(size_t i=0; i < _q.size(); ++i){
 			Instruction temp = _q[i];
 			auto type = temp.type();
-			if(temp.is_valid() && (std::get<0>(type) == OPCODE["beq"] || std::get<0>(type) == OPCODE["beq"])){
+			if(temp.is_valid() && (std::get<0>(type) == OPCODE["beq"] || std::get<0>(type) == OPCODE["bne"])){
 				auto regs = temp.physical_regs();
 				if(!*(b + std::get<0>(regs)) && !*(b + std::get<1>(regs))){
 					_q.erase(_q.begin() + i);
@@ -115,7 +118,7 @@ std::tuple<Instruction, int ,int> AddressQueue::MEMissue(){
 	
 		if(temp.is_valid() && (std::get<0>(type) == OPCODE["lw"])){
 			auto regs = temp.physical_regs();
-			if(!*(b + std::get<1>(regs)) && (_addr[i] != -2) && (_addr[i] != -1) && findswaddr(i)) {
+			if(!*(b + std::get<1>(regs)) && (_addr[i] != -2) && (_addr[i] != -1) && findswaddr(i)){
 				_q.erase(_q.begin() + i);
 				int addr = _addr[i];
 				_addr.erase(_addr.begin() + i);
@@ -124,8 +127,8 @@ std::tuple<Instruction, int ,int> AddressQueue::MEMissue(){
 		}	
 		if(temp.is_valid() && (std::get<0>(type) == OPCODE["sw"])  && findswaddr(i)){
 			auto regs = temp.physical_regs();
-			if(!*(b + std::get<1>(regs)) && (_addr[i] != -2) && (_addr[i] != -1)) {
-				if (!*(b + std::get<2>(regs))){
+			if(!*(b + std::get<1>(regs)) && (_addr[i] != -2) && (_addr[i] != -1)){
+				if (!*(b + std::get<0>(regs))){
 					_q.erase(_q.begin() + i);
 					int addr = _addr[i];
 					_addr.erase(_addr.begin() + i);

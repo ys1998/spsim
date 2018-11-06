@@ -37,6 +37,14 @@ using Buffer = std::deque<T>;
 #define LATENCY_DIV 35
 #define LATENCY_SW 1
 
+// Branch prediction
+#define BRANCH_PREDICT_SLOTS 32
+// States
+#define STRONGLY_TAKEN 3
+#define WEAKLY_TAKEN 2
+#define WEAKLY_NOT_TAKEN 1
+#define STRONGLY_NOT_TAKEN 0
+
 extern std::map<std::string, int> OPCODE;
 extern std::map<std::string, int> FUNCT;
 

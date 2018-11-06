@@ -9,8 +9,9 @@ extern int CLOCK;
 
 ALU1::ALU1(	Latch< std::tuple<Instruction, int, int> >* in, 
 			Latch< std::tuple<Instruction, int> >* out, bool* b,
-			ALU2 *a, Flusher *f){
+			ALU2 *a, Flusher *f, int* p, int* pa){
 	this->in = in; this->out = out; this->b = b; this->a = a; this->f = f;
+	this->predict = p; this->predict_addr = pa;
 	// store latencies of operations
 	latencies[FUNCT["add"]] = LATENCY_ADD;
 	latencies[FUNCT["sub"]] = LATENCY_SUB;
@@ -33,9 +34,22 @@ void ALU1::operate(void){
 				res = (in1 == in2);
 			}else if(opcode == OPCODE["bne"]){
 				res = (in1 != in2);
+				std::cout << "res " << res <<"\n";
 			}
+			// Branch prediction update
 			int possible_jump_address = i.get_pc() + 1 + i.get_immediate();
-			/* PREDICTOR UPDATE FUNCTION */
+			*(predict_addr + i.get_pc() % BRANCH_PREDICT_SLOTS) = possible_jump_address;
+			
+			if(res == 1){
+				*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) += 1;
+				if(*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) == STRONGLY_TAKEN + 1)
+					*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) = STRONGLY_TAKEN;
+			}else{
+				*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) -= 1;
+				if(*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) == STRONGLY_NOT_TAKEN - 1)
+					*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) = STRONGLY_NOT_TAKEN;
+			}
+			
 			if (res != i.predicted || ((res == 1) && (possible_jump_address != i.jumpAddressPred))){
 				//	case of misprediction
 				if(res == 0) possible_jump_address = i.get_pc()+1;
@@ -61,7 +75,6 @@ void ALU1::tick(void){
 			in2 = std::get<2>(inp);
 			i.EXEC = CLOCK;
 			i.MEM = CLOCK + 1;
-
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 				operate();
 			}else{
@@ -121,14 +134,12 @@ void ALU2::tick(void){
 			operate();
 		}
 		if(in->valid() && read){
-			
 			auto inp = in->read();
 			i = std::get<0>(inp);
 			in1 = std::get<1>(inp);
 			in2 = std::get<2>(inp);
 			i.EXEC = CLOCK;
 			i.MEM = CLOCK + 1;
-			
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 				operate();
 			}else{
@@ -176,18 +187,17 @@ ALU3::ALU3(	Latch< std::tuple<Instruction, int, int> >* in,
 
 void ALU3::tick(void){
 	if(in->valid() && read){
-
 		auto inp = in->read();
 		i = std::get<0>(inp);
 		in1 = std::get<1>(inp);
 		in2 = std::get<2>(inp);
 		i.EXEC = CLOCK;
 		i.RF2 = CLOCK + 1;
-		
 		if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 			res = in1 + in2;
-		}else{
-			stall_cycles = latencies[std::get<1>(i.type())] - 1;
+		}
+		else{
+			stall_cycles = latencies[std::get<1>(i.type())] - 1;	
 		}
 	} 
 }

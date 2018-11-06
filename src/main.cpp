@@ -47,7 +47,6 @@ void print_regs(IntegerRegisterFile &rf, int *rmap){
 // Function to print the space-time diagram
 void print_std(Buffer<Instruction> output_order){
 	std::cout << "Space-Time Diagram\n";
-	std::sort(output_order.begin(), output_order.end(), cmp);
 
 	std::string IF =  "\033[1;43m  IF  \033[0m";
 	std::string DE =  "\033[1;42m  DE  \033[0m";
@@ -73,7 +72,7 @@ void print_std(Buffer<Instruction> output_order){
 		while(i++ != instr.EXEC)
 			std::cout << RF1;
 		std::cout << EX;
-		if(std::get<0>(instr.type()) == OPCODE["lw"] || std::get<0>(instr.type()) == OPCODE["sw"]){
+		if(std::get<0>(instr.type())== OPCODE["lw"] || std::get<0>(instr.type())== OPCODE["sw"]){
 			while(i++ != instr.RF2)
 				std::cout << EX;
 			std::cout << RF2;
@@ -84,12 +83,14 @@ void print_std(Buffer<Instruction> output_order){
 				std::cout << MEM;
 			std::cout << WB;
 			std::cout << std::endl;			
-		}else {
+		}
+		else {
 			while(i++ != instr.WB)
 				std::cout << EX;
 			std::cout << WB;
 			std::cout << std::endl;
 		}
+
 	}
 }
 
@@ -97,7 +98,7 @@ void print_std(Buffer<Instruction> output_order){
 
 int main(int argc, char const *argv[])
 {	
-    if(argc <= 1) {
+	if(argc <= 1) {
 		error_msg("main", "Program needed for execution");
 	}
 	if(argc == 3){
@@ -121,7 +122,10 @@ int main(int argc, char const *argv[])
 	Buffer<Instruction> output_order, ICache, if_de_queue;
 	int DCache[DCACHE_SIZE];
 	int RegisterMapping[NUM_LOG_REGS];
-	bool BusyBitTable[NUM_PHY_REGS]; 
+	bool BusyBitTable[NUM_PHY_REGS];
+
+	int BranchPredict[BRANCH_PREDICT_SLOTS];
+	int BranchPredictAddr[BRANCH_PREDICT_SLOTS];
 
 	Fetcher f(&ICache, &if_de_queue);
 
@@ -131,7 +135,8 @@ int main(int argc, char const *argv[])
 	AddressQueue aq(&BusyBitTable[0]);
 	IntegerRegisterFile rf;
 
-	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], &iq, &aq);
+	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], 
+				&iq, &aq, &BranchPredict[0], &BranchPredictAddr[0], &f);
 
 	Latch< std::tuple<Instruction, int, int> > in_latch_1, in_latch_2,in_latch_3,in_latch_4;
 
@@ -146,7 +151,8 @@ int main(int argc, char const *argv[])
 
 	Writer w(&out_latch_1, &out_latch_2, &out_latch_4, &al, &rf, &BusyBitTable[0]);
 	Flusher flsh(&is, &f, &d, &w);
-	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &flsh);
+	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &flsh, 
+			&BranchPredict[0], &BranchPredictAddr[0]);
 	/**********************************************************************************/
 
 	int PC = 0;
@@ -177,9 +183,13 @@ int main(int argc, char const *argv[])
 	for(int i=0; i<NUM_PHY_REGS; ++i)
 		BusyBitTable[i] = false;
 	for(int i=0; i<DCACHE_SIZE;++i)
-		DCache[i] = i;                    
+		DCache[i] = i;    
+	for(int i=0; i<BRANCH_PREDICT_SLOTS; ++i){
+		BranchPredict[i] = STRONGLY_NOT_TAKEN;
+		BranchPredictAddr[i] = i + 1;
+	}                
 
-	int t = 30; // CHANGE THIS
+	int t = 500; // CHANGE THIS
 	while(t--){
 		CLOCK++;
 		f.tick();

@@ -14,7 +14,7 @@ Writer::Writer(	Latch< std::tuple<Instruction, int> >* in1,
 				Latch< std::tuple<Instruction, int, int> >* in2, 
 				Latch< std::tuple<Instruction, int> >* in3,
 				ActiveList* a, IntegerRegisterFile* rf, bool *b){
-	this->in1 = in1; this->in2 = in2; this->in3 = in3,this->a = a; this->rf = rf;
+	this->in1 = in1; this->in2 = in2; this->in3 = in3; this->a = a; this->rf = rf;
 	this->b = b;
 } 
 
@@ -50,8 +50,8 @@ void Writer::tick(void){
 			}
 		}
 	}
-}
 
+}
 
 void Writer::tock(void){
 	Instruction i1 = std::get<0>(t1), i2 = std::get<0>(t2), i3 = std::get<0>(t3);
@@ -72,6 +72,6 @@ void Writer::tock(void){
 	}
 }
 
-void Writer::flush(int id){
-	// TODO
-}
+// void Writer::flush(int id){
+// 	// TODO
+// }

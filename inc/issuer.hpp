@@ -27,12 +27,10 @@ protected:
 	Latch< std::tuple<Instruction, int> >* outer_latch;
 public:
 	Issuer(IntegerQueue*, AddressQueue*, IntegerRegisterFile*);					// constructor
-	/* Function to connect latches to this unit:
-		3 -> memory 
-		2 -> memory_cal
-		1 -> regular
-	*/
-	void attach_latch(int, Latch< std::tuple<Instruction, int, int> >*,int);	
+	void attach_latch(int, Latch< std::tuple<Instruction, int, int> >*,int);	// function to connect latches to this unit
+																				// 3 => memory 
+																				// 2 => memory_cal
+																				// 1 => regular
 	void attach_cal_latch_outer(Latch< std::tuple<Instruction, int> >*);	
 	void tick();		
 	void tock();

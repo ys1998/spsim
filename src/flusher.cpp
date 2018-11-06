@@ -8,7 +8,6 @@ Flusher::Flusher(Issuer *is, Fetcher *f, Decoder *d, Writer *w){
 	this->f = f;
 	this->d = d;
 	this->w = w;
-
 }
 
 void Flusher::flush(int id, int PC){
