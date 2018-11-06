@@ -4,7 +4,6 @@
 
 #include "alu.hpp"
 
-#include <iostream>
 extern std::map<std::string, int> OPCODE, FUNCT;
 extern int CLOCK;
 
@@ -42,27 +41,22 @@ void ALU1::operate(void){
 			*(predict_addr + i.get_pc() % BRANCH_PREDICT_SLOTS) = possible_jump_address;
 			
 			if(res == 1){
-				std::cout << "res : in if(1)"<<"\n";
 				*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) += 1;
 				if(*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) == STRONGLY_TAKEN + 1)
 					*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) = STRONGLY_TAKEN;
 			}else{
-				std::cout << "res : in if(0)"<<"\n";
 				*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) -= 1;
 				if(*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) == STRONGLY_NOT_TAKEN - 1)
 					*(predict + i.get_pc() % BRANCH_PREDICT_SLOTS) = STRONGLY_NOT_TAKEN;
 			}
 			
 			if (res != i.predicted || ((res == 1) && (possible_jump_address != i.jumpAddressPred))){
-				std::cout << "res : in misprediction"<<"\n";
 				//	case of misprediction
 				if(res == 0) possible_jump_address = i.get_pc()+1;
 				// flush second ALU
 				a->flush(i.get_id());
 				// flush other entities
 				f->flush(i.get_id(), possible_jump_address);
-				std::cout << "res : in misprediction compl"<< std::endl;
-				
 			}
 				
 		}	
@@ -73,7 +67,6 @@ void ALU1::tick(void){
 	if(stall_cycles == 0){
 		if(i.is_valid()){	
 			operate();
-			// *(b + std::get<2>(i.physical_regs())) = false;
 		}
 		if(in->valid() && read){
 			auto inp = in->read();
@@ -82,10 +75,8 @@ void ALU1::tick(void){
 			in2 = std::get<2>(inp);
 			i.EXEC = CLOCK;
 			i.MEM = CLOCK + 1;
-						// std::cout<<"Came "<<i.EXEC<< " " << i.MEM<<'\n';
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 				operate();
-				// *(b + std::get<2>(i.physical_regs())) = false;
 			}else{
 				stall_cycles = latencies[std::get<1>(i.type())] - 1;	
 			}
@@ -141,7 +132,6 @@ void ALU2::tick(void){
 	if(stall_cycles == 0){
 		if(i.is_valid()){
 			operate();
-			// *(b + std::get<2>(i.physical_regs())) = false;
 		}
 		if(in->valid() && read){
 			auto inp = in->read();
@@ -150,10 +140,8 @@ void ALU2::tick(void){
 			in2 = std::get<2>(inp);
 			i.EXEC = CLOCK;
 			i.MEM = CLOCK + 1;
-			// std::cout<<"Came "<<i.MEM<<'\n';
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 				operate();
-				// *(b + std::get<2>(i.physical_regs())) = false;
 			}else{
 				stall_cycles = latencies[std::get<1>(i.type())] - 1;	
 			}
@@ -192,63 +180,36 @@ ALU3::ALU3(	Latch< std::tuple<Instruction, int, int> >* in,
 	// store latencies of operations
 	latencies[FUNCT["add"]] = LATENCY_ADD;
 	latencies[FUNCT["sw"]] = LATENCY_SW;
-	//latencies[FUNCT["sub"]] = LATENCY_SUB;
 	// set stall cycles to zero
 	stall_cycles = 0;
 	read = true;
 }
 
 void ALU3::tick(void){
-	/*if(stall_cycles == 0){
-		if(i.is_valid()){
-			//operate();
+	if(in->valid() && read){
+		auto inp = in->read();
+		i = std::get<0>(inp);
+		in1 = std::get<1>(inp);
+		in2 = std::get<2>(inp);
+		i.EXEC = CLOCK;
+		i.RF2 = CLOCK + 1;
+		if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 			res = in1 + in2;
-			*(b + std::get<2>(i.physical_regs())) = false;
-		}*/
-			//	cout<<"AAAAAAAAAAAAAAAAAAAAAAAaa\n";
-		// cout<<"ALU3 TICK: \n";
-		if(in->valid() && read){
-			// cout<< " In Latch is Valid ";
-			auto inp = in->read();
-			i = std::get<0>(inp);
-			in1 = std::get<1>(inp);
-			in2 = std::get<2>(inp);
-			i.EXEC = CLOCK;
-			i.RF2 = CLOCK + 1;
-			// cout<<"EXEC:TIME"<<i.EXEC << " INST_ID"<< i.get_id()<<" "<<endl;
-			//cout<<"AAAAAAAAAAAAAAAAAAAAAAAaa\n";
-			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
-				//operate();
-				// cout<< " Instruction is valid \n";
-				// cout<<"IMMEDIATE: "<<in1<<" Immediate in instruction: "<<i.get_imm()<<"MEMORY:"<<in2<<endl;
-								res = in1 + in2;
-				// *(b + std::get<2>(i.physical_regs())) = false;
-				
-			}
-			else{
-				stall_cycles = latencies[std::get<1>(i.type())] - 1;
-				// cout<< " Instruction is invalid or latency problem \n";	
-			}
-		} 
-			// cout<<" In Latch invalid \n";
-		// cout<<"\n";
-	//}
+		}
+		else{
+			stall_cycles = latencies[std::get<1>(i.type())] - 1;	
+		}
+	} 
 }
 
 void ALU3::tock(void){
-
 	if(i.is_valid()	){
 		if(out->valid()){
 			read = false;	// previous data has not been read; stall
-			// cout<<"ALU3 TOCK: \n I is valid and OUT LATCH is Not writable \n";
 		}else{
-			// cout<<"ALU3 TOCK: \n I is valid and OUT LATCH is writable\n";
 			read = true;
-			//cout<<"BBBBBBBBBBBBBBBBBBB\n";
 			out->write(std::make_tuple(i, res));
 			Instruction reset; i = reset;
 		}
-		}
+	}
 }
-		// cout<<"ALU3 TOCK: I is invalid \n";	
-	// cout<< "\n";

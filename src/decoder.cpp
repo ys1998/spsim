@@ -4,8 +4,6 @@
 
 #include "decoder.hpp"
 
-#include <iostream>
-
 extern int CLOCK;
 extern std::map<std::string, int> OPCODE, FUNCT;
 
@@ -29,6 +27,7 @@ int Decoder::decode_instr(Instruction instr){
 	int rd = std::get<2>(reg);
 	
 	int temp, rs_, rt_, rd_;
+	temp = rs_ = rt_ = rd_ = -1;
 	bool found[3] = {false, false, false};
 
 	if(*(r + rs) == -1){
@@ -46,7 +45,6 @@ int Decoder::decode_instr(Instruction instr){
 				f->add(rs_);
 				*(r + rs) = -1;	
 			} 	// add already removed register
-
 			return -1;
 		}
 		*(r + rt) = rt_ = temp;
@@ -118,7 +116,6 @@ void Decoder::tock(void){
 			_q.erase(_q.begin() + i);
 			cnt++;
 		}else{
-			std::cout << "dec flush"<<"\n";
 			_q.clear();
 			d->clear();
 		}
@@ -129,11 +126,6 @@ void Decoder::flush(int id){
 	// clean eveerything, no check needed
 	_q.clear();
 	d->clear();
-	// std::cout << "AFTER FLUSH THE PIPE IS \n";
-	// for(size_t i=0; i < _q.size(); ++i){
-	// 		Instruction temp = _q[i] ;
-	// 		std::cout << temp.text << "\n";
-	// }
 	a->flush(id);
 }
 

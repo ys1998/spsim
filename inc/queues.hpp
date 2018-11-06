@@ -26,14 +26,13 @@ protected:
 public:								
 	Buffer<Instruction> _q;
 	bool *b;							// pointer to busy bit table
-	Buffer<int> _addr; 					//_addr[i]=-2=> not issued for addr_cal,-1=> issued for addre_cal but address not calculated.
-	// Instruction issued_for_addresscal  //Instruction issued for address_cal
+	Buffer<int> _addr; 					// -2 -> not issued for addr_cal, -1 -> issued for addre_cal but address not calculated
 	bool findswaddr(int);
 
-	AddressQueue(bool*);										// constructor
-	int add(Instruction);										// add instruction to this queue
+	AddressQueue(bool*);								// constructor
+	int add(Instruction);								// add instruction to this queue
 	std::tuple<Instruction, int, int> MEMissue();		// issue a specific instruction with address 
-	std::tuple<Instruction, int>  ALUissue();		// issue a specific instrucion with index in AddressQueue of the instruction issued
+	std::tuple<Instruction, int>  ALUissue();			// issue a specific instrucion with index in AddressQueue of the instruction issued
 };
 
 #endif

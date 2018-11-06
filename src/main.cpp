@@ -47,7 +47,6 @@ void print_regs(IntegerRegisterFile &rf, int *rmap){
 // Function to print the space-time diagram
 void print_std(Buffer<Instruction> output_order){
 	std::cout << "Space-Time Diagram\n";
-	std::sort(output_order.begin(), output_order.end(), cmp);
 
 	std::string IF =  "\033[1;43m  IF  \033[0m";
 	std::string DE =  "\033[1;42m  DE  \033[0m";
@@ -76,7 +75,7 @@ void print_std(Buffer<Instruction> output_order){
 		if(std::get<0>(instr.type())== OPCODE["lw"] || std::get<0>(instr.type())== OPCODE["sw"]){
 			while(i++ != instr.RF2)
 				std::cout << EX;
-			std::cout << RF2;// << i << instr.MEM;
+			std::cout << RF2;
 			while (i++ != instr.MEM)
 				std::cout << RF2;
 			std::cout << MEM;
@@ -142,7 +141,6 @@ int main(int argc, char const *argv[])
 	Latch< std::tuple<Instruction, int, int> > in_latch_1, in_latch_2,in_latch_3,in_latch_4;
 
 	Issuer is(&iq, &aq, &rf);
-	// Issuer is_1(&iq, &aq, &rf);                                    //// after address calulation issuing to memory stage
 
 	Latch< std::tuple<Instruction, int> > out_latch_1,out_latch_3,out_latch_4;
 	Latch< std::tuple<Instruction, int, int> > out_latch_2;
@@ -201,7 +199,6 @@ int main(int argc, char const *argv[])
 		a2.tick();
 		a3.tick();
 		mem.tick();
-		// is1.tick();
 		w.tick();
 
 		f.tock();
@@ -211,7 +208,6 @@ int main(int argc, char const *argv[])
 		a2.tock();
 		a3.tock();
 		mem.tock();
-		// is1.tock();
 		w.tock();
 	}
 	if(LOG_LEVEL >= 1)

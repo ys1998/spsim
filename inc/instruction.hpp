@@ -43,15 +43,13 @@ public:
 	}
 	int get_id(void){ return ID; }							// return instruction's identifier
 	int get_pc(void){ return PC; }
-	int get_immediate(void){ return immediate; }
+	int get_immediate(void){ return immediate; }			// returns the immediate value of the instruction
 	void map(std::tuple<int, int, int, int>);				// map logical registers to given physical registers
 	std::tuple<int, int, int, int> physical_regs(void);		// return the set of physical registers
 	std::tuple<int, int, int> logical_regs(void); 			// return the set of logical registers
-	std::tuple<int, int> type(void);						// return the numbers defining the type of instruction
-	int get_imm(void);                                      // returns the immediate value for the load/store instruction
+	std::tuple<int, int> type(void);						// return the numbers defining the type of instruction                               
 };
 
-bool cmp(Instruction, Instruction);
 void initialize_ISA(void);
 
 #endif
