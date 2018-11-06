@@ -194,12 +194,12 @@ int main(int argc, char const *argv[])
 		CLOCK++;
 		f.tick();
 		d.tick();
+		w.tick(); // for preventing additional stall
 		is.tick();
 		a1.tick();
 		a2.tick();
 		a3.tick();
 		mem.tick();
-		w.tick();
 
 		f.tock();
 		d.tock();

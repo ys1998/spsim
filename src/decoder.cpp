@@ -68,7 +68,10 @@ int Decoder::decode_instr(Instruction instr){
 		rd_ = temp;
 		f->remove(rd_);	
 	}
-	instr.map(std::make_tuple(rs_, rt_, rd_, *(r + rd)));
+	if(rd != -1)
+		instr.map(std::make_tuple(rs_, rt_, rd_, *(r + rd)));
+	else
+		instr.map(std::make_tuple(rs_, rt_, rd_, -1));
 	
 	if(opcode == OPCODE["lw"] || opcode == 0){
 		*(r + rd) = temp;

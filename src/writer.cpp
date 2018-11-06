@@ -4,9 +4,6 @@
 
 #include "writer.hpp"
 
-#include <iostream>
-using namespace std;
-
 extern std::map<std::string, int> OPCODE, FUNCT;
 extern int CLOCK;
 

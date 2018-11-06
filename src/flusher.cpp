@@ -1,7 +1,8 @@
+/*
+	Class declaration for invalid instruction flushing unit.
+*/
+
 #include "flusher.hpp"
-
-#include <iostream>
-
 
 Flusher::Flusher(Issuer *is, Fetcher *f, Decoder *d, Writer *w){
 	this->is = is;

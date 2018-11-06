@@ -38,6 +38,7 @@ Instruction::Instruction(int _PC, std::string instr){
 	ID = -1;
 	PC = _PC;
 	_rd = -1; rd_ = -1;
+	rs = rt = rd = -1;
 	IF = DE = RF1 = EXEC = RF2= MEM= WB = -1;
 	shamt = 0;
 	text = instr;
