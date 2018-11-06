@@ -34,7 +34,6 @@ void ALU1::operate(void){
 				res = (in1 == in2);
 			}else if(opcode == OPCODE["bne"]){
 				res = (in1 != in2);
-				std::cout << "res " << res <<"\n";
 			}
 			// Branch prediction update
 			int possible_jump_address = i.get_pc() + 1 + i.get_immediate();
