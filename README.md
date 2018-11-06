@@ -1,24 +1,8 @@
-***
-## Instructions
-*   All changes will be made only to the `test` branch
-*   Suggestions, bugs, checklists etc. will be all maintained via the **Issues** tab. Please keep on checking it for any task that might have been assigned to you.
-*   After completing a task, submit a pull request to `master`. Code will be reviewed by other team members; then changes will be merged and the issue will be closed.
-*   For compiling the program, just run `make`. If you have altered the code structure (added a new folder etc.) update the **Makefile** at the appropriate place.
-*   Before submitting a pull request, remember to clean the archive by executing `make clean`.
-***
-
 # SPSIM - a Superscalar Processor SIMulator
 This repository contatins the code of our course project for Computer Architecture (CS305-CS341) at IIT Bombay. We have developed a simulator for a superscalar processor with dynamic (out-of-order) scheduling and branch prediction in C++.
 
-<img align="center" src="images/spsim_trial.png" alt="Trial simulation">
-<img align="center" src="images/spsim_trial2.png" alt="Multi-cycle EXEC stage">
-<img align="center" src="images/exp.png" alt="Multi-cycle Branch prediction stages">
-
-
 ## Team
-### Name
-Comarchs
-### Members
+### *"Comarchs"*
 *   [160050002] Yash Shah ([**@ys1998**](https://github.com/ys1998))
 *   [160050025] Naman Jain ([**@Naman-ntc**](https://github.com/Naman-ntc))
 *   [160050032] Utkarsh Gupta ([**@Ug48**](https://github.com/Ug48))
@@ -31,10 +15,39 @@ Comarchs
 *   *"Microarchitecture of a Coarse-Grain Out-of-Order Superscalar Processor"*, Davor Capalija, Tarek S. Abdelrahman
 
 ## Code structure
-`main.cpp` contains the main simulation program. It instantiates all classes, creates the pipeline by aligning entities according to stages, maintains a global *clock* for the purpose of timing and invokes each entity at both the rising and falling clock edge.
+The entire codebase has been divided into the following parts
+* `src` : Folder containing all `.cpp` files
+* `inc` : Folder containing all header (`.hpp`) files
+* `prog` : Folder containing sample programs for simulation
+* `images` : Screenshots of sample simulations
 
-`entities.hpp` contains a list of all forward-declared classes modeling the hardware entities used in this simulator. The definitions and method specifications can be found in the corresponding `.cpp` file in `entities/` folder.
+Overview of modelling of hardware components and connections:
+1.  Each clocked hardware component is modelled using an appropriate derived class of the more abstract `ClockedEntity` class. Each of these entities has a `tick()`, `tock()` and `flush()` method, which are used to perform necessary actions during the events of a rising clock edge, falling clock edge and flushing of invalid instructions respectively. The various *clocked entities* represented are as follows (**fill one-line details later**):
+    *  `Fetcher`
+    *  `Decoder`
+    *  `Issuer`
+    *  `ALU1`
+    *  `ALU2`
+    *  `ALU3`
+    *  `MEM`
+    *  `Writer`
+    *  `Flusher`
+2.  Apart from these clocked entities, several *static entities* were also used (**fill one-line details later**):
+    *  `ICache/DCache`
+    *  `Buffer`
+    *  `BusyBitTable`
+    *  `RegisterMapping`
+    *  `FreeList`
+    *  `ActiveList`
+    *  `IntegerRegisterFile`
+    *  `IntegerQueue`
+    *  `AddressQueue`
+    *  `Latch`
+    *  `BranchPredict`, `BranchPredictAddr`
+3.  The connections between these static and clocked components are modelled using *pointers*. When a component is instantiated, it is provided with the pointers to those entities with which it is connected - either for reading input or writing/pushing output. This datapath is generated in `main.cpp`.
 
-```
-details of other major files, when added, shall go here
-```
+## Screenshots
+
+<img align="center" src="images/spsim_trial.png" alt="Trial simulation">
+<img align="center" src="images/spsim_trial2.png" alt="Multi-cycle EXEC stage">
+<img align="center" src="images/exp.png" alt="Multi-cycle Branch prediction stages">
