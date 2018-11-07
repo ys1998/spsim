@@ -56,7 +56,7 @@ In the current implementation, each instruction passess through a *subset* of th
 *  `DE` or **Decode** - instructions decoded, register mapping and renaming
 *  `RF1` or **Register Fetch, substage 1** - operand registers acquired (out-of-order execution)
 *  `EXEC` or **Execution** - operation performed (latencies can be >1)
-*  `RF2` or **Register Fetch, substage 2** - ??
+*  `RF2` or **Register Fetch, substage 2** - operation performed during *lw* and *sw* instructions for fetching memory and *load/store register* (source/destination for memory operations)
 *  `MEM` or **Memory** - reads/writes from/to D-Cache performed
 *  `WB` or **Write-Back** - result of operation written to destination register, instruction graduation
 
