@@ -26,19 +26,36 @@ std::map<std::string, int> OPCODE, FUNCT;
 void print_regs(IntegerRegisterFile &rf, int *rmap){
 	std::cout << "Integer Registers\n";
 	for(int j=0; j<4; ++j){
-		std::cout << "\033[0;36m  Reg  Val\033[0m";
+		std::cout << "\033[0;36m  Register     Value\033[0m";
 	}
 	std::cout << "\n";
 	for(int i=0; i < NUM_LOG_REGS/4; ++i){
 		for(int j=0; j < 4; ++j){
 			if(*(rmap + j*NUM_LOG_REGS/4 + i) != -1)
 				std::cout << "\033[1;36m" <<
-				std::setfill(' ') << std::setw(5) << j*NUM_LOG_REGS/4 + i << "\033[0m" <<
-				std::setfill(' ') << std::setw(5) << rf.read(*(rmap + j*NUM_LOG_REGS/4 + i));
+				std::setfill(' ') << std::setw(10) << j*NUM_LOG_REGS/4 + i << "\033[0m" <<
+				std::setfill(' ') << std::setw(10) << rf.read(*(rmap + j*NUM_LOG_REGS/4 + i));
 			else
 				std::cout << "\033[1;36m" <<
-				std::setfill(' ') << std::setw(5) << j*NUM_LOG_REGS/4 + i << "\033[0m" <<
-				std::setfill(' ') << std::setw(5) << 0;
+				std::setfill(' ') << std::setw(10) << j*NUM_LOG_REGS/4 + i << "\033[0m" <<
+				std::setfill(' ') << std::setw(10) << 0;
+		}
+		std::cout << std::endl;
+	}
+}
+
+// Function to print the current memory content
+void print_mem(int *d){
+	std::cout << "Memory (D-cache)\n";
+	for(int j=0; j<4; ++j){
+		std::cout << "\033[0;36m     Index     Value\033[0m";
+	}
+	std::cout << "\n";
+	for(int i=0; i < DCACHE_SIZE/4; ++i){
+		for(int j=0; j < 4; ++j){
+				std::cout << "\033[1;36m" <<
+				std::setfill(' ') << std::setw(10) << j*DCACHE_SIZE/4 + i << "\033[0m" <<
+				std::setfill(' ') << std::setw(10) << *(d + j*DCACHE_SIZE/4 + i);
 		}
 		std::cout << std::endl;
 	}
@@ -220,8 +237,11 @@ int main(int argc, char const *argv[])
 	print_regs(rf, &RegisterMapping[0]);
 
 	std::cout << std::endl;
+	print_mem(&DCache[0]);
+
+	std::cout << std::endl;
 	if(LOG_LEVEL >= 1)
-		status_msg("main", "Space-Time Diagram and register values displayed");
+		status_msg("main", "Space-Time Diagram, register values and memory content displayed");
     
     return 0;
 }
