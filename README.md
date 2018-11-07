@@ -62,6 +62,7 @@ In the current implementation, each instruction passess through a *subset* of th
 
 ## Screenshots
 
-<img align="center" src="images/spsim_trial.png" alt="Trial simulation" width="100%">
-<img align="center" src="images/spsim_trial2.png" alt="Multi-cycle EXEC stage" width="100%">
-<img align="center" src="images/exp.png" alt="Multi-cycle Branch prediction stages" width="100%">
+<img align="center" src="images/prog_1.png" width="100%">
+<img align="center" src="images/prog_2.png" width="100%">
+<img align="center" src="images/prog_3.png" width="100%">
+<img align="center" src="images/prog_4.png" width="100%">
