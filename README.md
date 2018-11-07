@@ -30,8 +30,8 @@ The entire codebase has been divided into the following parts
     *  **Issuer** - It is responsible for out-of-order issuing of instructions to the ALUs. In every cycle, it issues one instruction per ALU (if it is free) by checking whether operands for that instruction are 'available'. Each ALU can handle only a subset of possible operations, and the Issuer ensures that each instruction is passed to the input latch of the correct ALU.
     *  **ALU1** - Handles operations such as *add*, *sub*, *bne*, *beq* with priority towards branching instructions. Reads from an input latch, and writes to an output latch. It is stalled when either of them isn't free (i.e. no instruction to read from input latch or previous output still not read from output latch).
     *  **ALU2** - Similar to ALU1, but handles *mult*, *div*, *add* and *sub* with preference towards *mult* and *div*.
-    *  **ALU3** - Similar to ALU's 1 & 2 but handle only *add* for computing the memory address for *lw* & *sw* instructions.
-    *  **MEM** - Memory unit, used by *lw* and *sw* instruction to communicate with the memory.
+    *  **ALU3** - Similar to ALU's 1 & 2 but handles only *add* for computing the memory addresses for *lw* & *sw* instructions.
+    *  **MEM** - Memory unit, used by *lw* and *sw* instructions to communicate with the memory.
     *  **Writer** - Reads the outputs from all three latches (i.e. the output latches of all three ALUs) and performs writes to corresponding destination registers.
     *  **Flusher** - In case of branch misprediction, it flushes all invalid instructions from the pipeline and restores the original state by updating the program counter and reverting back altered logical-to-physical register mappings.
 
