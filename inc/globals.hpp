@@ -26,6 +26,7 @@ using Buffer = std::deque<T>;
 #define DECODE_QUEUE_SIZE 32		// size of queue holding decoded instructions
 #define ACTIVE_LIST_SIZE 64			// maximum number of active instructions
 #define INSTR_QUEUE_SIZE 16			// maximum number of queued instructions
+#define ADDR_QUEUE_SIZE 16			// maximum number of memory-based queued instructions
 #define DCACHE_SIZE 100             /// 100 integers can be stored (addrresses indexed by arary)
 
 // Latencies for different operations

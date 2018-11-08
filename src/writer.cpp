@@ -69,6 +69,30 @@ void Writer::tock(void){
 	}
 }
 
-// void Writer::flush(int id){
-// 	// TODO
-// }
+void Writer::flush(int id){
+	if(in1->valid()){
+		auto inp = in1->read();
+		auto iRead = std::get<0>(inp);
+		auto inp1 = std::get<1>(inp);
+		if(iRead.get_id() < id){
+			in1->write(std::make_tuple(iRead, inp1));
+		}
+	}
+	if(in3->valid()){
+		auto inp = in3->read();
+		auto iRead = std::get<0>(inp);
+		auto inp1 = std::get<1>(inp);
+		if(iRead.get_id() < id){
+			in3->write(std::make_tuple(iRead, inp1));
+		}
+	}
+	if(in2->valid()){
+		auto inp = in2->read();
+		auto iRead = std::get<0>(inp);
+		auto inp1 = std::get<1>(inp);
+		auto inp2 = std::get<2>(inp);
+		if(iRead.get_id() < id){
+			in2->write(std::make_tuple(iRead, inp1, inp2 ));
+		}
+	}
+}

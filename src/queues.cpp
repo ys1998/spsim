@@ -103,7 +103,7 @@ AddressQueue::AddressQueue(bool *b,ActiveList *al){
 }
 
 int AddressQueue::add(Instruction instr){
-	if(_q.size() < INSTR_QUEUE_SIZE){
+	if(_q.size() < ADDR_QUEUE_SIZE){
 		_q.push_back(instr);
 		_addr.push_back(-2);
 		return 0;

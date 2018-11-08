@@ -81,6 +81,14 @@ void Issuer::tock(void){
 
 void Issuer::flush(int id){
 	iq->flush(id);
+
+	for(int j=0; j < NUM_ALU; ++j){
+		if(i[j].is_valid() && i[j].get_id() > id){
+			i[j] = Instruction();
+			ready[j] = true;
+		}
+	}
+
 	for(int j=0; j < NUM_ALU; ++j){
 		if(l[j]->valid()){
 			auto inp = l[j]->read();
