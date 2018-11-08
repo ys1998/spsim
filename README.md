@@ -33,7 +33,6 @@ The entire codebase has been divided into the following parts
     *  **ALU3** - Similar to ALU's 1 & 2 but handles only *add* for computing the memory addresses for *lw* & *sw* instructions.
     *  **MEM** - Memory unit, used by *lw* and *sw* instructions to communicate with the memory.
     *  **Writer** - Reads the outputs from all three latches (i.e. the output latches of all three ALUs) and performs writes to corresponding destination registers.
-    *  **Flusher** - In case of branch misprediction, it flushes all invalid instructions from the pipeline and restores the original state by updating the program counter and reverting back altered logical-to-physical register mappings.
 
 2.  Apart from these clocked entities, several *static entities* were also used:
     *  **ICache/DCache** - simulate the instruction and data caches respectively
@@ -47,6 +46,7 @@ The entire codebase has been divided into the following parts
     *  **AddressQueue** - stores instructions corresponding to memory operations
     *  **Latch** - temporarily hold a value and prevent writes until the previous value has been read
     *  **BranchPredict**, **BranchPredictAddr** - buffers used for storing auxiliary information for branch prediction (i.e. current state in the prediction FSM, and predicted address for a given PC respectively)
+    *  **Flusher** - In case of branch misprediction, it flushes all invalid instructions from the pipeline and restores the original state by updating the program counter and reverting back altered logical-to-physical register mappings.
     
 3.  The connections between these static and clocked components are modelled using *pointers*. When a component is instantiated, it is provided with the pointers to those entities with which it is connected - either for reading input or writing/pushing output. This datapath is generated in `main.cpp`.
 
