@@ -36,6 +36,9 @@ public:
 	int add(Instruction);								// add instruction to this queue
 	std::tuple<Instruction, int, int> MEMissue();		// issue a specific instruction with address 
 	std::tuple<Instruction, int>  ALUissue();			// issue a specific instrucion with index in AddressQueue of the instruction issued
+	void flush(int);
+
+
 };
 
 #endif

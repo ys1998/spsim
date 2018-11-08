@@ -1,0 +1,3 @@
+src/issuer.cpp:				i[j] = iq->issue(j);
+src/issuer.cpp:	iq->flush(id);
+src/decoder.cpp:		iq->add(instr); // TODO check return value

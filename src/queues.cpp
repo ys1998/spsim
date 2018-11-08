@@ -143,10 +143,10 @@ std::tuple<Instruction, int ,int> AddressQueue::MEMissue(){
 }
 
 bool AddressQueue::no_notcalculated_branch_above(Instruction i){
+
 	for(Buffer< std::pair<Instruction, bool> >::iterator it = al->_q.begin(); it->first.get_id()!=i.get_id() ; ++it){
 			if(std::get<0>(it->first.type())==OPCODE["beq"]||std::get<0>(it->first.type())==OPCODE["bne"])
 				if(!it->second){
-					// std::cout<<it->first.text<<endl;
 					return 0;
 				}
 		}
@@ -177,4 +177,16 @@ std::tuple<Instruction, int> AddressQueue::ALUissue(){
 		}
 	}
 	return std::make_tuple(Instruction(), -1);
+}
+
+void AddressQueue::flush(int id){
+	size_t i=0;
+	while(i < _q.size()){
+		if(_q[i].get_id() > id){
+			_q.erase(_q.begin() + i);
+			_addr.erase(_addr.begin() + i);
+		}else{
+			i++;
+		}
+	}
 }

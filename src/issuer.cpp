@@ -92,4 +92,12 @@ void Issuer::flush(int id){
 			}
 		}
 	}
+	if(outer_latch->valid()){
+			auto inp = outer_latch->read();
+			auto iRead = std::get<0>(inp);
+			auto in1 = std::get<1>(inp);
+			if(iRead.get_id() < id){
+				outer_latch->write(std::make_tuple(iRead, in1));
+			}
+		}
 }

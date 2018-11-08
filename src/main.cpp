@@ -168,7 +168,7 @@ int main(int argc, char const *argv[])
 
 	Writer w(&out_latch_1, &out_latch_2, &out_latch_4, &al, &rf, &BusyBitTable[0]);
 	Flusher flsh(&is, &f, &d, &w);
-	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &flsh, 
+	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &a3, &flsh, 
 			&BranchPredict[0], &BranchPredictAddr[0]);
 	/**********************************************************************************/
 
