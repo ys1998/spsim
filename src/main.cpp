@@ -77,7 +77,11 @@ void print_std(Buffer<Instruction> output_order){
 
 	for(auto instr : output_order){
 		int i = 1;
-		std::cout << instr.text << "\t";
+		std::cout << instr.text << " " << std::get<0>(instr.physical_regs()) 
+		<< " " << std::get<1>(instr.physical_regs()) 
+		<< " " << std::get<2>(instr.physical_regs()) 
+		<< " " << std::get<3>(instr.physical_regs()) 
+		  << "\n";
 		while(i < instr.WB && i++ < instr.IF)
 			std::cout << sp;
 		std::cout << IF;

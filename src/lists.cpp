@@ -91,8 +91,11 @@ void ActiveList::flush(int id){
 			if(std::get<2>(regs) >= 0 && std::get<2>(regs) < NUM_PHY_REGS)
 				f->add(std::get<2>(regs));
 			
-			*(r + std::get<2>(log_regs)) = std::get<3>(regs);
-			*(b + std::get<2>(regs)) = false;
+			if(std::get<2>(log_regs) != -1)
+				*(r + std::get<2>(log_regs)) = std::get<3>(regs);
+			if(std::get<2>(regs) != -1)
+				*(b + std::get<2>(regs)) = false;
+			
 			_q.erase(_q.begin() + i);
 		}
 		i--;
