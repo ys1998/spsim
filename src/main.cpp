@@ -149,7 +149,7 @@ int main(int argc, char const *argv[])
 	FreeList fl;
 	ActiveList al(&fl, &output_order, &RegisterMapping[0], &BusyBitTable[0]);
 	IntegerQueue iq(&BusyBitTable[0]);
-	AddressQueue aq(&BusyBitTable[0]);
+	AddressQueue aq(&BusyBitTable[0],&al);
 	IntegerRegisterFile rf;
 
 	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], 
