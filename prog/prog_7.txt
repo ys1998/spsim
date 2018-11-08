@@ -8,9 +8,10 @@ lw 2 1 0
 lw 5 2 0
 lw 3 0 0
 lw 4 1 0
+lw 1 1 0
 add 3 3 4
 add 1 1 4
 bne 1 5 -3
 add 2 2 4
-bne 2 5 -5
+bne 2 5 -6
 sw 3 6 0

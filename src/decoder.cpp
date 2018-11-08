@@ -97,8 +97,8 @@ int Decoder::decode_instr(Instruction instr){
 		iq->add(instr); // TODO check return value
 	else
 		aq->add(instr);
-	a->push(instr); // TODO check return value
 	
+	a->push(instr); // TODO check return value
 	return ret;
 }
 

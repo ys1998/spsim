@@ -30,7 +30,7 @@ public:
 			ActiveList*, IntegerRegisterFile*, bool*);
 	void tick();
 	void tock();
-	// void flush(int);
+	void flush(int);
 };
 
 #endif
