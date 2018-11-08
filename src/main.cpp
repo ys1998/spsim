@@ -16,6 +16,7 @@
 
 int LOG_LEVEL = 1;
 int CLOCK = 0;
+bool terminate = false;
 std::map<std::string, int> OPCODE, FUNCT;
 
 /**********************************************************************************
@@ -255,8 +256,7 @@ int main(int argc, char const *argv[])
 	if(LOG_LEVEL >= 1)
 		status_msg("main", "Program parsing complete");
 
-	int t = 500; // CHANGE THIS
-	while(t--){
+	while(!terminate){
 		CLOCK++;
 		f.tick();
 		d.tick();
@@ -277,7 +277,7 @@ int main(int argc, char const *argv[])
 		w.tock();
 	}
 	if(LOG_LEVEL >= 1)
-		status_msg("main", "Program simulation complete");
+		status_msg("main", "Program simulation complete, ticks = " + std::to_string(CLOCK));
 
 	std::cout << std::endl;
 	print_std(output_order);
@@ -287,7 +287,7 @@ int main(int argc, char const *argv[])
 
 	std::cout << std::endl;
 	print_mem(&DCache[0]);
-
+	
 	std::cout << std::endl;
 	if(LOG_LEVEL >= 1)
 		status_msg("main", "Space-Time Diagram, register values and memory content displayed");

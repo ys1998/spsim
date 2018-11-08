@@ -6,6 +6,8 @@
 
 #include <string>
 
+extern bool terminate;
+
 FreeList::FreeList(){
 	for(int i = 0 ; i < NUM_PHY_REGS ; i++)
 		free[i] = true;
@@ -77,6 +79,8 @@ void ActiveList::graduate(Instruction& instr){
 			f->add(std::get<3>(t));
 		}
 		o->push_back(temp);
+		if(_q.size() == 1)
+			terminate = true;
 		_q.pop_front();
 	}
 }

@@ -57,5 +57,6 @@ extern std::map<std::string, int> FUNCT;
 */
 extern int LOG_LEVEL;
 extern int CLOCK;
+extern bool terminate;
 
 #endif
