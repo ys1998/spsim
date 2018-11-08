@@ -164,7 +164,7 @@ int main(int argc, char const *argv[])
 	FreeList fl;
 	ActiveList al(&fl, &output_order, &RegisterMapping[0], &BusyBitTable[0]);
 	IntegerQueue iq(&BusyBitTable[0]);
-	AddressQueue aq(&BusyBitTable[0]);
+	AddressQueue aq(&BusyBitTable[0],&al);
 	IntegerRegisterFile rf;
 
 	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], 
@@ -183,7 +183,7 @@ int main(int argc, char const *argv[])
 
 	Writer w(&out_latch_1, &out_latch_2, &out_latch_4, &al, &rf, &BusyBitTable[0]);
 	Flusher flsh(&is, &f, &d, &w);
-	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &flsh, 
+	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &a3, &flsh, 
 			&BranchPredict[0], &BranchPredictAddr[0]);
 
 	is.attach_latch(0, &in_latch_1,1);

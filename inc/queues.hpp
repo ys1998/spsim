@@ -7,6 +7,7 @@
 
 #include "globals.hpp"
 #include "instruction.hpp"
+#include "lists.hpp"
 
 #include <tuple>
 
@@ -28,11 +29,16 @@ public:
 	bool *b;							// pointer to busy bit table
 	Buffer<int> _addr; 					// -2 -> not issued for addr_cal, -1 -> issued for addre_cal but address not calculated
 	bool findswaddr(int);
+	bool no_notcalculated_branch_above(Instruction);
+	ActiveList *al;
 
-	AddressQueue(bool*);								// constructor
+	AddressQueue(bool*,ActiveList*);								// constructor
 	int add(Instruction);								// add instruction to this queue
 	std::tuple<Instruction, int, int> MEMissue();		// issue a specific instruction with address 
 	std::tuple<Instruction, int>  ALUissue();			// issue a specific instrucion with index in AddressQueue of the instruction issued
+	void flush(int);
+
+
 };
 
 #endif

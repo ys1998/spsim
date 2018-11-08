@@ -9,9 +9,9 @@ extern int CLOCK;
 
 ALU1::ALU1(	Latch< std::tuple<Instruction, int, int> >* in, 
 			Latch< std::tuple<Instruction, int> >* out, bool* b,
-			ALU2 *a, Flusher *f, int* p, int* pa){
+			ALU2 *a, ALU3* a3, Flusher *f, int* p, int* pa){
 	this->in = in; this->out = out; this->b = b; this->a = a; this->f = f;
-	this->predict = p; this->predict_addr = pa;
+	this->predict = p; this->predict_addr = pa; this->a3 = a3;
 	// store latencies of operations
 	latencies[FUNCT["add"]] = LATENCY_ADD;
 	latencies[FUNCT["sub"]] = LATENCY_SUB;
@@ -54,6 +54,7 @@ void ALU1::operate(void){
 				if(res == 0) possible_jump_address = i.get_pc()+1;
 				// flush second ALU
 				a->flush(i.get_id());
+				a3->flush(i.get_id());
 				// flush other entities
 				f->flush(i.get_id(), possible_jump_address);
 			}
@@ -210,5 +211,14 @@ void ALU3::tock(void){
 			out->write(std::make_tuple(i, res));
 			Instruction reset; i = reset;
 		}
+	}
+}
+
+void ALU3::flush(int id){
+	if(i.get_id() > id){
+		Instruction reset;
+		i = reset;
+		stall_cycles = 0;
+		read = true;
 	}
 }

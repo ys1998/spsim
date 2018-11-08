@@ -130,6 +130,8 @@ void Decoder::flush(int id){
 	_q.clear();
 	d->clear();
 	a->flush(id);
+	iq->flush(id);
+	aq->flush(id);
 }
 
 std::tuple<int, int> Decoder::predict_branch(int PC){

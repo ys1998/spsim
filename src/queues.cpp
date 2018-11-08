@@ -97,8 +97,9 @@ void IntegerQueue::flush(int id){
 	}
 }
 
-AddressQueue::AddressQueue(bool *b){
+AddressQueue::AddressQueue(bool *b,ActiveList *al){
 	this->b = b;
+	this->al = al; 
 }
 
 int AddressQueue::add(Instruction instr){
@@ -125,7 +126,8 @@ std::tuple<Instruction, int ,int> AddressQueue::MEMissue(){
 				return std::make_tuple(temp, addr , i);
 			}
 		}	
-		if(temp.is_valid() && (std::get<0>(type) == OPCODE["sw"])  && findswaddr(i)){
+		if(temp.is_valid() && (std::get<0>(type) == OPCODE["sw"])  && findswaddr(i) && no_notcalculated_branch_above(temp))
+		{
 			auto regs = temp.physical_regs();
 			if(!*(b + std::get<1>(regs)) && (_addr[i] != -2) && (_addr[i] != -1)){
 				if (!*(b + std::get<0>(regs))){
@@ -138,6 +140,17 @@ std::tuple<Instruction, int ,int> AddressQueue::MEMissue(){
 		}
 	}
 	return std::make_tuple(Instruction(), -1, -1);
+}
+
+bool AddressQueue::no_notcalculated_branch_above(Instruction i){
+
+	for(Buffer< std::pair<Instruction, bool> >::iterator it = al->_q.begin(); it->first.get_id()!=i.get_id() ; ++it){
+			if(std::get<0>(it->first.type())==OPCODE["beq"]||std::get<0>(it->first.type())==OPCODE["bne"])
+				if(!it->second){
+					return 0;
+				}
+		}
+	return 1;
 }
 
 bool AddressQueue::findswaddr(int index){
@@ -164,4 +177,16 @@ std::tuple<Instruction, int> AddressQueue::ALUissue(){
 		}
 	}
 	return std::make_tuple(Instruction(), -1);
+}
+
+void AddressQueue::flush(int id){
+	size_t i=0;
+	while(i < _q.size()){
+		if(_q[i].get_id() > id){
+			_q.erase(_q.begin() + i);
+			_addr.erase(_addr.begin() + i);
+		}else{
+			i++;
+		}
+	}
 }
