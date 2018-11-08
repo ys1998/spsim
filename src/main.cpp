@@ -72,42 +72,57 @@ void print_std(Buffer<Instruction> output_order){
 	std::string EX =  "\033[1;44m EXEC \033[0m";
 	std::string MEM = "\033[1;47;30m  MEM \033[0m";
 	std::string WB =  "\033[1;45m  WB  \033[0m";
+	std::string ST =  "\033[1;100m  STL \033[0m";
 	std::string sp =  "      ";
 
 	for(auto instr : output_order){
 		int i = 1;
 		std::cout << instr.text << "\t";
-		while(i < instr.WB && i++ != instr.IF)
+		while(i < instr.WB && i++ < instr.IF)
 			std::cout << sp;
 		std::cout << IF;
-		while(i < instr.WB && i++ != instr.DE)
-			std::cout << IF;
+		while(i < instr.WB && i++ < instr.DE)
+			std::cout << ST;
 		std::cout << DE;
-		while(i++ != instr.RF1)
-			std::cout << DE;
+		while(i++ < instr.RF1)
+			std::cout << ST;
 		std::cout << RF1;
-		while(i++ != instr.EXEC)
-			std::cout << RF1;
+		while(i++ < instr.EXEC)
+			std::cout << ST;
 		std::cout << EX;
-		if(std::get<0>(instr.type())== OPCODE["lw"] || std::get<0>(instr.type())== OPCODE["sw"]){
-			while(i++ != instr.RF2)
+		if(std::get<0>(instr.type()) == OPCODE["lw"] || std::get<0>(instr.type()) == OPCODE["sw"]){
+			while(i++ < instr.EXEC + LATENCY_ADD)
 				std::cout << EX;
+			while(i++ < instr.RF2)
+				std::cout << ST;
 			std::cout << RF2;
-			while (i++ != instr.MEM)
-				std::cout << RF2;
+			while (i++ < instr.MEM)
+				std::cout << ST;
 			std::cout << MEM;
-			while(i++ != instr.WB)
-				std::cout << MEM;
+			while(i++ < instr.WB)
+				std::cout << ST;
 			std::cout << WB;
 			std::cout << std::endl;			
 		}
 		else {
-			while(i++ != instr.WB)
+			int latency = 1;
+			if(std::get<0>(instr.type()) == 0){
+				if(std::get<1>(instr.type()) == FUNCT["add"])
+					latency = LATENCY_ADD;
+				else if(std::get<1>(instr.type()) == FUNCT["sub"])
+					latency = LATENCY_SUB;
+				else if(std::get<1>(instr.type()) == FUNCT["mult"])
+					latency = LATENCY_MULT;
+				else if(std::get<1>(instr.type()) == FUNCT["div"])
+					latency = LATENCY_DIV;
+			}
+			while(i++ < instr.EXEC + latency)
 				std::cout << EX;
+			while(i++ < instr.WB)
+				std::cout << ST;
 			std::cout << WB;
 			std::cout << std::endl;
 		}
-
 	}
 }
 
