@@ -16,7 +16,6 @@ void initialize_ISA(void){
 	OPCODE["lw"] = 6;
 	OPCODE["sw"] = 7;
 
-
 	FUNCT["add"] = 32;
 	FUNCT["sub"] = 34;
 	FUNCT["mult"] = 24;

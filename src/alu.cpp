@@ -67,16 +67,21 @@ void ALU1::tick(void){
 	if(stall_cycles == 0){
 		if(i.is_valid()){	
 			operate();
+			in->read();
 		}
 		if(in->valid() && read){
 			auto inp = in->read();
+			in->write(inp);
 			i = std::get<0>(inp);
+			if(i.is_valid())
+				read = false;
 			in1 = std::get<1>(inp);
 			in2 = std::get<2>(inp);
 			i.EXEC = CLOCK;
 			i.MEM = CLOCK + 1;
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 				operate();
+				in->read();
 			}else{
 				stall_cycles = latencies[std::get<1>(i.type())] - 1;	
 			}
@@ -132,16 +137,21 @@ void ALU2::tick(void){
 	if(stall_cycles == 0){
 		if(i.is_valid()){
 			operate();
+			in->read();
 		}
 		if(in->valid() && read){
 			auto inp = in->read();
+			in->write(inp);
 			i = std::get<0>(inp);
+			if(i.is_valid())
+				read = false;
 			in1 = std::get<1>(inp);
 			in2 = std::get<2>(inp);
 			i.EXEC = CLOCK;
 			i.MEM = CLOCK + 1;
 			if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 				operate();
+				in->read();
 			}else{
 				stall_cycles = latencies[std::get<1>(i.type())] - 1;	
 			}
@@ -188,13 +198,17 @@ ALU3::ALU3(	Latch< std::tuple<Instruction, int, int> >* in,
 void ALU3::tick(void){
 	if(in->valid() && read){
 		auto inp = in->read();
+		in->write(inp);
 		i = std::get<0>(inp);
+		if(i.is_valid())
+			read = false;
 		in1 = std::get<1>(inp);
 		in2 = std::get<2>(inp);
 		i.EXEC = CLOCK;
 		i.RF2 = CLOCK + 1;
 		if(i.is_valid() && latencies[std::get<1>(i.type())] == 1){
 			res = in1 + in2;
+			in->read();
 		}
 		else{
 			stall_cycles = latencies[std::get<1>(i.type())] - 1;	

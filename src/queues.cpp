@@ -6,7 +6,7 @@
 
 extern std::map<std::string, int> FUNCT;
 extern std::map<std::string, int> OPCODE;
-
+extern int CLOCK;
 using namespace std;
 
 IntegerQueue::IntegerQueue(bool *b){
