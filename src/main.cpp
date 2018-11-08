@@ -185,41 +185,75 @@ int main(int argc, char const *argv[])
 	Flusher flsh(&is, &f, &d, &w);
 	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &flsh, 
 			&BranchPredict[0], &BranchPredictAddr[0]);
-	/**********************************************************************************/
 
-	int PC = 0;
-	std::string input = "";
-	while(std::getline(programFile, input)){
-		if(PC > PROG_SIZE) {
-			error_msg("main", std::string("Program size limit [") + std::to_string(PROG_SIZE) + "] exceeded");
-		}
-		Instruction instr(PC, input);
-		instr.set_id();
-		ICache.push_back(instr);
-		PC++;
-	}
-	programFile.close();
-
-	if(LOG_LEVEL >= 1)
-		status_msg("main", "Program parsing complete");
-
-	// Complete building and initializing the data path
 	is.attach_latch(0, &in_latch_1,1);
 	is.attach_latch(1, &in_latch_2,1);
 	is.attach_latch(2,&in_latch_3,2);
 	is.attach_latch(3,&in_latch_4,3);
 	is.attach_cal_latch_outer(&out_latch_3);
+	
+	/**********************************************************************************/
 
 	for(int i=0; i<NUM_LOG_REGS; ++i)
 		RegisterMapping[i] = -1;
 	for(int i=0; i<NUM_PHY_REGS; ++i)
 		BusyBitTable[i] = false;
 	for(int i=0; i<DCACHE_SIZE;++i)
-		DCache[i] = i;    
+		DCache[i] = 0;    
 	for(int i=0; i<BRANCH_PREDICT_SLOTS; ++i){
 		BranchPredict[i] = STRONGLY_NOT_TAKEN;
 		BranchPredictAddr[i] = i + 1;
-	}                
+	} 
+	               
+	int PC = 0, stage = -1;
+	bool main_found = false;
+	std::string input = "";
+
+	while(std::getline(programFile, input)){
+		if(input.compare("") == 0)
+			continue;
+		if(PC > PROG_SIZE) {
+			error_msg("main", std::string("Program size limit [") + std::to_string(PROG_SIZE) + "] exceeded");
+		}
+		switch(stage){
+			case -1:
+			if(input.compare("data:") == 0)
+				stage = 0;
+			else if(input.compare("main:") == 0)
+				stage = 1;
+			break;
+
+			case 0:
+			if(input.compare("main:") == 0)
+				stage = 1;
+			else{
+				size_t pos;
+				int idx = std::stoi(input, &pos);
+				if(idx >= DCACHE_SIZE)
+					error_msg("parser", "D-Cache size limit exceeded");
+				else{
+					int value = std::stoi(input.substr(pos));
+					DCache[idx] = value;
+				}
+			}
+			break;
+
+			case 1:
+			main_found = true;
+			Instruction instr(PC, input);
+			instr.set_id();
+			ICache.push_back(instr);
+			PC++;
+			break;
+		}
+	}
+	programFile.close();
+
+	if(!main_found)
+		error_msg("parser", "Main label not found");
+
+	if(LOG_LEVEL >= 1)
+		status_msg("main", "Program parsing complete");
 
 	int t = 500; // CHANGE THIS
 	while(t--){

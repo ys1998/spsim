@@ -1,3 +1,8 @@
+data:
+1 1
+2 2
+
+main:
 lw 1 1 0
 lw 2 2 0
 add 3 1 2
