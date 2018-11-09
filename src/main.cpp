@@ -92,8 +92,8 @@ void print_std(Buffer<Instruction> output_order){
 			std::cout << ST;
 		std::cout << EX;
 		if(std::get<0>(instr.type()) == OPCODE["lw"] || std::get<0>(instr.type()) == OPCODE["sw"]){
-			while(i++ < instr.EXEC + LATENCY_ADD)
-				std::cout << EX;
+//			while(i++ < instr.EXEC + LATENCY_ADD)
+//				std::cout << EX;
 			while(i++ < instr.RF2)
 				std::cout << ST;
 			std::cout << RF2;
@@ -103,7 +103,7 @@ void print_std(Buffer<Instruction> output_order){
 			while(i++ < instr.WB)
 				std::cout << ST;
 			std::cout << WB;
-			std::cout << std::endl;			
+			std::cout << std::endl;
 		}
 		else {
 			int latency = 1;
@@ -130,7 +130,7 @@ void print_std(Buffer<Instruction> output_order){
 /**********************************************************************************/
 
 int main(int argc, char const *argv[])
-{	
+{
 	if(argc <= 1) {
 		error_msg("main", "Program needed for execution");
 	}
@@ -168,7 +168,7 @@ int main(int argc, char const *argv[])
 	AddressQueue aq(&BusyBitTable[0],&al);
 	IntegerRegisterFile rf;
 
-	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0], 
+	Decoder d(&if_de_queue, &fl, &al, &RegisterMapping[0], &BusyBitTable[0],
 				&iq, &aq, &BranchPredict[0], &BranchPredictAddr[0], &f);
 
 	Latch< std::tuple<Instruction, int, int> > in_latch_1, in_latch_2,in_latch_3,in_latch_4;
@@ -184,7 +184,7 @@ int main(int argc, char const *argv[])
 
 	Writer w(&out_latch_1, &out_latch_2, &out_latch_4, &al, &rf, &BusyBitTable[0]);
 	Flusher flsh(&is, &f, &d, &w);
-	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &a3, &flsh, 
+	ALU1 a1(&in_latch_1, &out_latch_1, &BusyBitTable[0], &a2, &a3, &flsh,
 			&BranchPredict[0], &BranchPredictAddr[0]);
 
 	is.attach_latch(0, &in_latch_1,1);
@@ -192,7 +192,7 @@ int main(int argc, char const *argv[])
 	is.attach_latch(2,&in_latch_3,2);
 	is.attach_latch(3,&in_latch_4,3);
 	is.attach_cal_latch_outer(&out_latch_3);
-	
+
 	/**********************************************************************************/
 
 	for(int i=0; i<NUM_LOG_REGS; ++i)
@@ -200,12 +200,12 @@ int main(int argc, char const *argv[])
 	for(int i=0; i<NUM_PHY_REGS; ++i)
 		BusyBitTable[i] = false;
 	for(int i=0; i<DCACHE_SIZE;++i)
-		DCache[i] = 0;    
+		DCache[i] = 0;
 	for(int i=0; i<BRANCH_PREDICT_SLOTS; ++i){
 		BranchPredict[i] = STRONGLY_NOT_TAKEN;
 		BranchPredictAddr[i] = i + 1;
-	} 
-	               
+	}
+
 	int PC = 0, stage = -1;
 	bool main_found = false;
 	std::string input = "";
@@ -287,10 +287,10 @@ int main(int argc, char const *argv[])
 
 	std::cout << std::endl;
 	print_mem(&DCache[0]);
-	
+
 	std::cout << std::endl;
 	if(LOG_LEVEL >= 1)
 		status_msg("main", "Space-Time Diagram, register values and memory content displayed");
-    
+
     return 0;
 }

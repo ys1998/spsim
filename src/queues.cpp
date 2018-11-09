@@ -99,7 +99,7 @@ void IntegerQueue::flush(int id){
 
 AddressQueue::AddressQueue(bool *b,ActiveList *al){
 	this->b = b;
-	this->al = al; 
+	this->al = al;
 }
 
 int AddressQueue::add(Instruction instr){
@@ -116,7 +116,7 @@ std::tuple<Instruction, int ,int> AddressQueue::MEMissue(){
 	for(size_t i=0; i < _q.size(); ++i){
 		Instruction temp = _q[i];
 		auto type = temp.type();
-	
+
 		if(temp.is_valid() && (std::get<0>(type) == OPCODE["lw"])){
 			auto regs = temp.physical_regs();
 			if(!*(b + std::get<1>(regs)) && (_addr[i] != -2) && (_addr[i] != -1) && findswaddr(i)){
@@ -125,7 +125,7 @@ std::tuple<Instruction, int ,int> AddressQueue::MEMissue(){
 				_addr.erase(_addr.begin() + i);
 				return std::make_tuple(temp, addr , i);
 			}
-		}	
+		}
 		if(temp.is_valid() && (std::get<0>(type) == OPCODE["sw"])  && findswaddr(i) && no_notcalculated_branch_above(temp))
 		{
 			auto regs = temp.physical_regs();
@@ -137,6 +137,9 @@ std::tuple<Instruction, int ,int> AddressQueue::MEMissue(){
 					return std::make_tuple(temp, addr , i);
 				}
 			}
+            else {
+                break;
+            }
 		}
 	}
 	return std::make_tuple(Instruction(), -1, -1);
