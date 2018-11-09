@@ -255,17 +255,17 @@ int main(int argc, char const *argv[])
 
 	if(LOG_LEVEL >= 1)
 		status_msg("main", "Program parsing complete");
-
+	
 	while(!terminate){
 		CLOCK++;
 		f.tick();
 		d.tick();
 		w.tick(); // for preventing additional stall
-		is.tick();
 		a1.tick();
 		a2.tick();
 		a3.tick();
 		mem.tick();
+		is.tick();
 
 		f.tock();
 		d.tock();

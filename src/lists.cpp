@@ -79,9 +79,9 @@ void ActiveList::graduate(Instruction& instr){
 			f->add(std::get<3>(t));
 		}
 		o->push_back(temp);
-		if(_q.size() == 1)
-			terminate = true;
 		_q.pop_front();
+		if(_q.empty())
+			terminate = true;
 	}
 }
 

@@ -18,7 +18,6 @@ class Issuer : public ClockedEntity {
 protected:
 	Instruction i[NUM_ALU];									// instructions read from input queue
 	Latch< std::tuple<Instruction, int, int> >* l[NUM_ALU];	// output latches to ALU
-	bool ready[NUM_ALU];									// indicates whether instruction should be read from queue for a latch
 	IntegerQueue *iq;										// pointer to integer queue		
 	AddressQueue *aq;										
 	IntegerRegisterFile *rf;								// pointer to integer register file
