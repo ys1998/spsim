@@ -21,7 +21,8 @@ void MEM::tick(){
 		in1 = std::get<1>(inp);
 		in2 = std::get<2>(inp);
 		i.MEM = CLOCK;
-		if(i.is_valid()){
+	    //std::cout<<CLOCK<<std::endl;
+        if(i.is_valid()){
 			if(std::get<0>(i.type()) == OPCODE["sw"]){
 				DCache[in1] = in2;
 				// std::cout<<i.text<<std::endl;
