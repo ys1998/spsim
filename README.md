@@ -1,5 +1,5 @@
 # SPSIM - a Superscalar Processor SIMulator
-This repository contatins the code of our course project for Computer Architecture (CS305-CS341) at IIT Bombay. We have developed a simulator for a superscalar processor with dynamic (out-of-order) scheduling and branch prediction in C++.
+This repository contains the code of our course project for Computer Architecture (CS305-CS341) at IIT Bombay. We have developed a simulator for a superscalar processor with dynamic (out-of-order) scheduling and branch prediction in C++.
 
 <img align="center" src="images/spsim_datapath.png" width="100%">
 
